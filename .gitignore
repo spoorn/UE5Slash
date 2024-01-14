@@ -77,3 +77,10 @@ DerivedDataCache/*
 .idea/
 # Visual Studio
 .vsconfig
+# Large asset folders can be excluded for now
+Content/AncientContent/
+Content/AnimalVarietyPack/
+Content/BlackAlder/
+Content/MedievalDungeon/
+Content/Megascans/
+Content/StarterContent/
