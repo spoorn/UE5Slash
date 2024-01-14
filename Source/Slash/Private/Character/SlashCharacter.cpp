@@ -84,6 +84,11 @@ ASlashCharacter::ASlashCharacter()
 	{
 		TurnAction = SetDestinationActionAsset.Object;
 	}
+	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
+		TEXT("/Game/Input/Actions/IA_Jump")); SetDestinationActionAsset.Succeeded())
+	{
+		JumpAction = SetDestinationActionAsset.Object;
+	}
 }
 
 void ASlashCharacter::BeginPlay()
@@ -144,6 +149,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Turn);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	}
 }
 
