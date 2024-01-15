@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterTypes.h"
 #include "Animation/AnimInstance.h"
 #include "SlashAnimInstance.generated.h"
 
+enum class ECharacterState : uint8;
 /**
  * 
  */
@@ -33,4 +35,8 @@ public:
 	// Is in the air
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
+
+	// Character state
+	UPROPERTY(BlueprintReadOnly, Category = "Character State")
+	ECharacterState CharacterState;
 };

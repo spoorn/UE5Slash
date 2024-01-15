@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GroomComponent.h"
 #include "InputMappingContext.h"
+#include "Asset/AssetMacros.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -41,17 +42,8 @@ ASlashCharacter::ASlashCharacter()
 		GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 
 		// Set default hair and eyebrow assets
-		if (const ConstructorHelpers::FObjectFinder<UGroomAsset> GroomAsset(TEXT("/Game/AncientContent/Characters/Echo/Hair/Hair_S_UpdoBuns"))
-		; GroomAsset.Succeeded())
-		{
-			HairComponent->SetGroomAsset(GroomAsset.Object);
-		}
-
-		if (const ConstructorHelpers::FObjectFinder<UGroomAsset> GroomAsset(TEXT("/Game/AncientContent/Characters/Echo/Hair/Eyebrows_L_Echo"))
-		; GroomAsset.Succeeded())
-		{
-			EyebrowsComponent->SetGroomAsset(GroomAsset.Object);
-		}
+		LOAD_ASSET_TO_CALLBACK(UGroomAsset, "/Game/AncientContent/Characters/Echo/Hair/Hair_S_UpdoBuns", HairComponent->SetGroomAsset);
+		LOAD_ASSET_TO_CALLBACK(UGroomAsset, "/Game/AncientContent/Characters/Echo/Hair/Eyebrows_L_Echo", EyebrowsComponent->SetGroomAsset);
 	}
 
 	// Spring Arm and Camera
@@ -71,31 +63,15 @@ ASlashCharacter::ASlashCharacter()
 	
 
 	// Fetch data assets from default locations if available
-	if (const ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingAsset(TEXT("/Game/Input/IMC_SlashContext"))
-		; InputMappingAsset.Succeeded())
-	{
-		MappingContext = InputMappingAsset.Object;
-	}
-	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
-		TEXT("/Game/Input/Actions/IA_Move")); SetDestinationActionAsset.Succeeded())
-	{
-		MoveAction = SetDestinationActionAsset.Object;
-	}
-	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
-		TEXT("/Game/Input/Actions/IA_Turn")); SetDestinationActionAsset.Succeeded())
-	{
-		TurnAction = SetDestinationActionAsset.Object;
-	}
-	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
-		TEXT("/Game/Input/Actions/IA_Jump")); SetDestinationActionAsset.Succeeded())
-	{
-		JumpAction = SetDestinationActionAsset.Object;
-	}
-	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
-		TEXT("/Game/Input/Actions/IA_Equip")); SetDestinationActionAsset.Succeeded())
-	{
-		EquipAction = SetDestinationActionAsset.Object;
-	}
+	LOAD_ASSET_TO_VARIABLE(UInputMappingContext, "/Game/Input/IMC_SlashContext", MappingContext);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Move", MoveAction);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Turn", TurnAction);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Jump", JumpAction);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Equip", EquipAction);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Attack", AttackAction);
+
+	// Animation montages
+	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Attack", AttackMontage);
 }
 
 void ASlashCharacter::BeginPlay()
@@ -148,6 +124,24 @@ void ASlashCharacter::EKeypressed()
 	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem); Weapon)
 	{
 		Weapon->Equip(GetMesh(), RightHandSocketName);
+		CharacterState = ECharacterState::EquippedOneHandedWeapon;
+	}
+}
+
+void ASlashCharacter::Attack()
+{
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && AttackMontage)
+	{
+		// Pick animation instance at random
+		AnimInstance->Montage_Play(AttackMontage);
+		int32 Selection = FMath::RandRange(0, 1);
+		if (Selection == 0)
+		{
+			AnimInstance->Montage_JumpToSection(FName("Attack1"), AttackMontage);
+		} else
+		{
+			AnimInstance->Montage_JumpToSection(FName("Attack2"), AttackMontage);
+		}
 	}
 }
 
@@ -167,6 +161,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Turn);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeypressed);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 	}
 }
 
