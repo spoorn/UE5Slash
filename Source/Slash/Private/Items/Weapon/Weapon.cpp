@@ -8,6 +8,7 @@ void AWeapon::Equip(USceneComponent* SceneComponent, FName InSocketName)
 	if (SceneComponent)
 	{
 		ItemMesh->AttachToComponent(SceneComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), InSocketName);
+		ItemState = EItemState::Equipped;
 	}
 }
 

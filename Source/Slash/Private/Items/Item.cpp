@@ -67,5 +67,11 @@ void AItem::Tick(float DeltaTime)
 	//
 	// FVector Forward = GetActorForwardVector();
 	// DRAW_VECTOR_SINGLE_FRAME(Location, Location + Forward * 100.0f);
+
+	// Float item when hovering
+	if (ItemState == EItemState::Hovering)
+	{
+		AddActorWorldOffset(FVector(0, 0, TransformedSin()));
+	}
 }
 

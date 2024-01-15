@@ -89,7 +89,7 @@ void ASlashCharacter::BeginPlay()
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
-	if (GetController())
+	if (GetController() && ActionState != EActionState::Attacking)
 	{
 		// Rotation of controller
 		const FRotator ControlRotation = GetControlRotation();
@@ -130,11 +130,20 @@ void ASlashCharacter::EKeypressed()
 
 void ASlashCharacter::Attack()
 {
+	if (ActionState == EActionState::Unoccupied && CharacterState != ECharacterState::Unequipped)
+	{
+		PlayAttackMontage();
+		ActionState = EActionState::Attacking;
+	}
+}
+
+void ASlashCharacter::PlayAttackMontage()
+{
 	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && AttackMontage)
 	{
 		// Pick animation instance at random
 		AnimInstance->Montage_Play(AttackMontage);
-		int32 Selection = FMath::RandRange(0, 1);
+		const int32 Selection = FMath::RandRange(0, 1);
 		if (Selection == 0)
 		{
 			AnimInstance->Montage_JumpToSection(FName("Attack1"), AttackMontage);
@@ -143,6 +152,11 @@ void ASlashCharacter::Attack()
 			AnimInstance->Montage_JumpToSection(FName("Attack2"), AttackMontage);
 		}
 	}
+}
+
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::Unoccupied;
 }
 
 void ASlashCharacter::Tick(float DeltaTime)

@@ -13,7 +13,14 @@ class SLASH_API AItem : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	/// Item states
+	enum class EItemState : uint8
+	{
+		Hovering,
+		Equipped
+	};
+	
 	AItem();
 	virtual void Tick(float DeltaTime) override;
 
@@ -29,7 +36,6 @@ protected:
 	// OnComponentBeginOverlap (from PrimitiveComponent) for our SphereComponent
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION()
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
@@ -41,6 +47,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> ItemMesh;
+
+	EItemState ItemState = EItemState::Hovering;
 
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

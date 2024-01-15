@@ -33,11 +33,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Input callbacks
+	/**
+	 * Input callbacks
+	 */
+	
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
 	void EKeypressed();
 	void Attack();
+
+	void PlayAttackMontage();
+	/// End of attack notification
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> MappingContext;
@@ -57,6 +65,7 @@ private:
 	static inline FName RightHandSocketName = FName("RightHandSocket");
 
 	ECharacterState CharacterState = ECharacterState::Unequipped;
+	EActionState ActionState = EActionState::Unoccupied;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
