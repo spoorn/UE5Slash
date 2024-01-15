@@ -3,6 +3,7 @@
 
 #include "Items/Item.h"
 
+#include "Character/SlashCharacter.h"
 #include "Components/SphereComponent.h"
 
 AItem::AItem()
@@ -39,18 +40,19 @@ float AItem::TransformedCos()
 void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (const FString OtherActorName = OtherActor->GetName(); GEngine)
+	if (TObjectPtr<ASlashCharacter> SlashCharacter = Cast<ASlashCharacter>(OtherActor); SlashCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30, FColor::Red, FString::Printf(TEXT("Begin Overlap: %s"), *OtherActorName));
+		SlashCharacter->SetOverlappingItem(this);
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	if (const FString OtherActorName = OtherActor->GetName(); GEngine)
+	// Only remove overlapping item from character if it is the current one
+	if (TObjectPtr<ASlashCharacter> SlashCharacter = Cast<ASlashCharacter>(OtherActor); SlashCharacter && SlashCharacter->GetOverlappingItem() == this)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30, FColor::Red, FString::Printf(TEXT("End Overlap: %s"), *OtherActorName));
+		SlashCharacter->SetOverlappingItem(nullptr);
 	}
 }
 

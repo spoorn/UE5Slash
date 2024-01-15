@@ -10,6 +10,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Items/Item.h"
+#include "Items/Weapon/Weapon.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -89,6 +91,11 @@ ASlashCharacter::ASlashCharacter()
 	{
 		JumpAction = SetDestinationActionAsset.Object;
 	}
+	if (const ConstructorHelpers::FObjectFinder<UInputAction> SetDestinationActionAsset(
+		TEXT("/Game/Input/Actions/IA_Equip")); SetDestinationActionAsset.Succeeded())
+	{
+		EquipAction = SetDestinationActionAsset.Object;
+	}
 }
 
 void ASlashCharacter::BeginPlay()
@@ -135,6 +142,15 @@ void ASlashCharacter::Turn(const FInputActionValue& Value)
 	}
 }
 
+void ASlashCharacter::EKeypressed()
+{
+	// Attach weapon to SlashCharacter's right hand socket
+	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem); Weapon)
+	{
+		Weapon->Equip(GetMesh(), RightHandSocketName);
+	}
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -150,6 +166,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Turn);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeypressed);
 	}
 }
 
