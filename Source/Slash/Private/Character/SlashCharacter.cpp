@@ -11,7 +11,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Items/Item.h"
 #include "Items/Weapon/Weapon.h"
 
 ASlashCharacter::ASlashCharacter()
@@ -72,6 +71,7 @@ ASlashCharacter::ASlashCharacter()
 
 	// Animation montages
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Attack", AttackMontage);
+	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Equip", EquipMontage);
 }
 
 void ASlashCharacter::BeginPlay()
@@ -89,7 +89,8 @@ void ASlashCharacter::BeginPlay()
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
-	if (GetController() && ActionState != EActionState::Attacking)
+	if (ActionState != EActionState::Unoccupied) return;
+	if (GetController())
 	{
 		// Rotation of controller
 		const FRotator ControlRotation = GetControlRotation();
@@ -125,6 +126,22 @@ void ASlashCharacter::EKeypressed()
 	{
 		Weapon->Equip(GetMesh(), RightHandSocketName);
 		CharacterState = ECharacterState::EquippedOneHandedWeapon;
+		OverlappingItem = nullptr;
+		EquippedWeapon = Weapon;
+	} else
+	{
+		// Play animation montage and change state for un/equipping weapons
+		if (ActionState == EActionState::Unoccupied && CharacterState != ECharacterState::Unequipped && EquippedWeapon)
+		{
+			PlayEquipMontage(FName("Unequip"));
+			CharacterState = ECharacterState::Unequipped;
+			ActionState = EActionState::EquippingWeapon;
+		} else if (ActionState == EActionState::Unoccupied && CharacterState == ECharacterState::Unequipped && EquippedWeapon)
+		{
+			PlayEquipMontage(FName("Equip"));
+			CharacterState = ECharacterState::EquippedOneHandedWeapon;
+			ActionState = EActionState::EquippingWeapon;
+		}
 	}
 }
 
@@ -134,6 +151,16 @@ void ASlashCharacter::Attack()
 	{
 		PlayAttackMontage();
 		ActionState = EActionState::Attacking;
+	}
+}
+
+void ASlashCharacter::PlayEquipMontage(FName SectionName)
+{
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && EquipMontage)
+	{
+		// Pick animation instance at random
+		AnimInstance->Montage_Play(EquipMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
 }
 
@@ -155,6 +182,28 @@ void ASlashCharacter::PlayAttackMontage()
 }
 
 void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::Unoccupied;
+}
+
+void ASlashCharacter::Arm()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttachMeshToComponent(GetMesh(), RightHandSocketName);
+		EquippedWeapon->PlayEquipSound();
+	}
+}
+
+void ASlashCharacter::Disarm()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttachMeshToComponent(GetMesh(), BackSocketName);
+	}
+}
+
+void ASlashCharacter::EndEquipping()
 {
 	ActionState = EActionState::Unoccupied;
 }

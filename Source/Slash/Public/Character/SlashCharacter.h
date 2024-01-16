@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "SlashCharacter.generated.h"
 
+class AWeapon;
 class AItem;
 class UCameraComponent;
 class UGroomComponent;
@@ -42,10 +43,25 @@ protected:
 	void EKeypressed();
 	void Attack();
 
+	/**
+	 * Animation Montages
+	 */
+	
+	void PlayEquipMontage(FName SectionName);
 	void PlayAttackMontage();
+	
 	/// End of attack notification
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+	/// Equip weapon from back slot
+	UFUNCTION(BlueprintCallable)
+	void Arm();
+	/// Unequip weapon to back slot
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
+	/// End equipping animation
+	UFUNCTION(BlueprintCallable)
+	void EndEquipping();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> MappingContext;
@@ -63,9 +79,20 @@ protected:
 private:
 	// Should be created in Blueprints
 	static inline FName RightHandSocketName = FName("RightHandSocket");
+	static inline FName BackSocketName = FName("BackSocket");
 
+	/**
+	 * States
+	 */
+	
+	UPROPERTY(VisibleAnywhere)
 	ECharacterState CharacterState = ECharacterState::Unequipped;
+	UPROPERTY(VisibleAnywhere)
 	EActionState ActionState = EActionState::Unoccupied;
+
+	/**
+	 * Components
+	 */
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
@@ -83,10 +110,15 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	TObjectPtr<AItem> OverlappingItem;
 
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	TObjectPtr<AWeapon> EquippedWeapon;
+
 	/**
 	 * Animation montages
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> AttackMontage;
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	TObjectPtr<UAnimMontage> EquipMontage;
 
 };

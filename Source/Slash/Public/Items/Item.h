@@ -50,11 +50,11 @@ protected:
 
 	EItemState ItemState = EItemState::Hovering;
 
+	/// Sphere component for overlap events
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent> SphereComponent;
+
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
-
-	// Sphere component for overlap events
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USphereComponent> SphereComponent;
 };
