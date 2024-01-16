@@ -9,6 +9,7 @@
 #include "InputMappingContext.h"
 #include "Asset/AssetMacros.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Items/Weapon/Weapon.h"
@@ -72,6 +73,14 @@ ASlashCharacter::ASlashCharacter()
 	// Animation montages
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Attack", AttackMontage);
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Equip", EquipMontage);
+}
+
+void ASlashCharacter::SetWeaponCollision(ECollisionEnabled::Type CollisionType)
+{
+	if (EquippedWeapon && EquippedWeapon->GetCollisionBox())
+	{
+		EquippedWeapon->GetCollisionBox()->SetCollisionEnabled(CollisionType);
+	}
 }
 
 void ASlashCharacter::BeginPlay()

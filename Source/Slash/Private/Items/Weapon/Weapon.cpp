@@ -3,19 +3,25 @@
 
 #include "Items/Weapon/Weapon.h"
 
+#include "Asset/AssetMacros.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
 {
-	// TODO: doesn't work with Metasound sources
-	//LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_Shink'", EquipSound);
+	// Default equip sound
+	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_Shink", EquipSound);
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("WeaponCollisionBox");
 	CollisionBox->SetupAttachment(GetRootComponent());
+	
+	// Default for swords
 	CollisionBox->InitBoxExtent(FVector(3, 2.2, 40));
-	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionBox->SetRelativeLocation(FVector(0, 0, 12.4));
+	
+	// Default to no collision at the start
+	CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	// Positions will be set in BP

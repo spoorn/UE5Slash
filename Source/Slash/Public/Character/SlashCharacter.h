@@ -31,6 +31,12 @@ public:
 	FORCEINLINE void SetOverlappingItem(TObjectPtr<AItem> Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 
+	/**
+	 * Weapon Hit Collision
+	 */
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollision(ECollisionEnabled::Type CollisionType);
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -8,9 +8,11 @@
 
 class UBoxComponent;
 /**
- * 
+ * Base Weapon class
+ *
+ * Note: PrioritizeCategories doesn't seem to work: https://forums.unrealengine.com/t/reorder-variable-categories-in-class-defaults/66561/78
  */
-UCLASS()
+UCLASS(meta = (PrioritizeCategories ="Physics Input Collision Lighting"))
 class SLASH_API AWeapon : public AItem
 {
 	GENERATED_BODY()
@@ -23,6 +25,8 @@ public:
 
 	/// Play Equip sound effect
 	void PlayEquipSound();
+
+	FORCEINLINE TObjectPtr<UBoxComponent> GetCollisionBox() const { return CollisionBox; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -37,11 +41,11 @@ protected:
 
 private:
 	/// Equip sound for the weapon
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	TObjectPtr<USoundBase> EquipSound;
 
 	/// Collision box
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	TObjectPtr<UBoxComponent> CollisionBox;
 
 	/// Start for collision box tracing
