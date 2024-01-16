@@ -6,6 +6,7 @@
 #include "Asset/AssetMacros.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Interfaces/HitInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
@@ -93,5 +94,10 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
 			ETraceTypeQuery::TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+		
+		if (IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor()); HitInterface)
+		{
+			HitInterface->GetHit(HitResult.ImpactPoint);
+		}
 	}
 }

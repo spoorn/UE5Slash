@@ -25,5 +25,5 @@ public:
 	/**
 	 * Hit event from some weapon
 	 */
-	virtual void GetHit() = 0;
+	virtual void GetHit(const FVector& ImpactPoint) = 0;
 };
