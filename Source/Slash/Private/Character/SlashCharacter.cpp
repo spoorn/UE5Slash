@@ -128,6 +128,7 @@ void ASlashCharacter::EKeypressed()
 		CharacterState = ECharacterState::EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
 		EquippedWeapon = Weapon;
+		EquippedWeapon->SetOwner(this);
 	} else
 	{
 		// Play animation montage and change state for un/equipping weapons

@@ -6,6 +6,7 @@
 #include "Items/Item.h"
 #include "Weapon.generated.h"
 
+class UBoxComponent;
 /**
  * 
  */
@@ -24,11 +25,29 @@ public:
 	void PlayEquipSound();
 
 protected:
+	virtual void BeginPlay() override;
+	
+	// Pickup overlaps
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+
+	// Collision box overlaps
+	UFUNCTION()
+	void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
 	/// Equip sound for the weapon
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	TObjectPtr<USoundBase> EquipSound;
+
+	/// Collision box
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	TObjectPtr<UBoxComponent> CollisionBox;
+
+	/// Start for collision box tracing
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> BoxTraceStart;
+	/// End for collision box tracing
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> BoxTraceEnd;
 };
