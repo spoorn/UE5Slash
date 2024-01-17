@@ -23,5 +23,15 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	/// Play the Hit React animation montage
+	void PlayHitReactMontage(const FName& SectionName);
+
+private:
+	/**
+	 * Animation Montages
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	TObjectPtr<UAnimMontage> HitReactMontage;
 	
 };

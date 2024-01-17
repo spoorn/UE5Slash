@@ -28,6 +28,9 @@ public:
 
 	FORCEINLINE TObjectPtr<UBoxComponent> GetCollisionBox() const { return CollisionBox; }
 
+	/// Dynamic ignore actors array for weapon hit collision
+	TArray<AActor*> CollisionIgnoreActors;
+
 protected:
 	virtual void BeginPlay() override;
 	

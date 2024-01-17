@@ -82,18 +82,16 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// Ignore the owner of this weapon
-	if (OtherActor != GetOwner())
+	// Ignore the owner of this weapon, or if we already hit the other actor during a single attack
+	if (OtherActor != GetOwner() || CollisionIgnoreActors.Contains(OtherActor))
 	{
 		const FVector Start = BoxTraceStart->GetComponentLocation();
 		const FVector End = BoxTraceEnd->GetComponentLocation();
 		const FVector BoxHalfSize = FVector(5, 5, 5);
-		TArray<AActor*> ActorsToIgnore;
-		ActorsToIgnore.Add(this);
 		FHitResult HitResult;
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
-			ETraceTypeQuery::TraceTypeQuery1, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 		
 		if (IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor()); HitInterface)
 		{

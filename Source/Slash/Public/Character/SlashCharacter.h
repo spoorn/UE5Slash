@@ -53,7 +53,7 @@ protected:
 	 * Animation Montages
 	 */
 	
-	void PlayEquipMontage(FName SectionName);
+	void PlayEquipMontage(const FName& SectionName);
 	void PlayAttackMontage();
 	
 	/// End of attack notification

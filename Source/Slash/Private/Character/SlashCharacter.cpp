@@ -80,6 +80,8 @@ void ASlashCharacter::SetWeaponCollision(ECollisionEnabled::Type CollisionType)
 	if (EquippedWeapon && EquippedWeapon->GetCollisionBox())
 	{
 		EquippedWeapon->GetCollisionBox()->SetCollisionEnabled(CollisionType);
+		// Clear collision ignore actors for attack at the beginning and end of each attack
+		EquippedWeapon->CollisionIgnoreActors.Empty();
 	}
 }
 
@@ -164,11 +166,10 @@ void ASlashCharacter::Attack()
 	}
 }
 
-void ASlashCharacter::PlayEquipMontage(FName SectionName)
+void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && EquipMontage)
 	{
-		// Pick animation instance at random
 		AnimInstance->Montage_Play(EquipMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
@@ -194,6 +195,7 @@ void ASlashCharacter::PlayAttackMontage()
 void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::Unoccupied;
+	
 }
 
 void ASlashCharacter::Arm()

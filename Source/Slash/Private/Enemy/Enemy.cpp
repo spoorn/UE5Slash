@@ -35,6 +35,15 @@ void AEnemy::BeginPlay()
 	
 }
 
+void AEnemy::PlayHitReactMontage(const FName& SectionName)
+{
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+	}
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -50,5 +59,36 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
 	DRAW_SPHERE(ImpactPoint);
+	const FVector Forward = GetActorForwardVector();
+	// Level impact with actor's Z location so debug information is visually accurate
+	const FVector ImpactLeveled = FVector(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
+	const FVector ToImpact = (ImpactLeveled - GetActorLocation()).GetSafeNormal();
+	// Get angle in degrees
+	double Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Forward, ToImpact)));
+
+	// LHR: if negative, to left, if positive, to right of actor's forward
+	const FVector CrossProduct = FVector::CrossProduct(Forward, ToImpact);
+
+	if (CrossProduct.Z < 0)
+	{
+		Angle *= -1;
+	}
+
+	FName SectionName;
+	if (Angle < 45 && Angle >= -45)
+	{
+		SectionName = FName("FromFront");
+	} else if (Angle >= -135 && Angle < -45)
+	{
+		SectionName = FName("FromBack");
+	} else if (Angle >= 45 && Angle < 135)
+	{
+		SectionName = FName("FromRight");
+	} else
+	{
+		SectionName = FName("FromLeft");
+	}
+
+	PlayHitReactMontage(SectionName);
 }
 
