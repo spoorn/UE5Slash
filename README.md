@@ -1,6 +1,7 @@
 # Assets
 Assets are too large to check in to free tier.  This also requires 
-- Ancient Valley content
+- Paragon: Minions
+- Ancient Valley content (migrated over)
 - Black Alder
 - Medieval Dungeon
 - Animal Variety Pack

@@ -3,8 +3,10 @@
 
 #include "Enemy/Enemy.h"
 
+#include "Asset/AssetMacros.h"
 #include "Components/CapsuleComponent.h"
-#include "Debug/DebugMacros.h"
+#include "Particles/ParticleSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 AEnemy::AEnemy()
 {
@@ -27,6 +29,10 @@ AEnemy::AEnemy()
 		GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 		GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	}
+
+	// Set default hit sound and hit particle effect
+	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_HitFlesh", HitSound);
+	LOAD_ASSET_TO_VARIABLE(UParticleSystem, "/Game/VFX/Blood/Effects/ParticleSystems/Gameplay/Player/P_body_bullet_impact", HitParticles);
 }
 
 void AEnemy::BeginPlay()
@@ -58,7 +64,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
-	DRAW_SPHERE(ImpactPoint);
+	//DRAW_SPHERE(ImpactPoint);
 	const FVector Forward = GetActorForwardVector();
 	// Level impact with actor's Z location so debug information is visually accurate
 	const FVector ImpactLeveled = FVector(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
@@ -90,5 +96,14 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 	}
 
 	PlayHitReactMontage(SectionName);
+
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);
+		if (HitParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, ImpactPoint);
+		}
+	}
 }
 

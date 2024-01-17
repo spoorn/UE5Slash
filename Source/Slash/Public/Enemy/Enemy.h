@@ -33,5 +33,13 @@ private:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	/// Sound effect to play when enemy is hit by weapon
+	UPROPERTY(EditAnywhere, Category = Sound)
+	TObjectPtr<USoundBase> HitSound;
+
+	/// Hit particles, legacy Cascade system
+	UPROPERTY(EditAnywhere, Category = Particles)
+	TObjectPtr<UParticleSystem> HitParticles;
 	
 };
