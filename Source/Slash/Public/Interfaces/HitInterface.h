@@ -23,7 +23,10 @@ class SLASH_API IHitInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	/**
-	 * Hit event from some weapon
+	 * Hit event from some weapon.
+	 *
+	 * Native event so it's implementable in BP using events.
 	 */
-	virtual void GetHit(const FVector& ImpactPoint) = 0;
+	UFUNCTION(BlueprintNativeEvent)
+	void GetHit(const FVector& ImpactPoint);
 };

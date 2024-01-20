@@ -33,14 +33,21 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
-	// Pickup overlaps
+
+	/**
+	 * Weapon pickup overlaps
+	 */
+	 
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
-	// Collision box overlaps
+	/// Collision box overlaps
 	UFUNCTION()
 	void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/// Implement in BP, but trigger in C++ when weapon attacks
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFields(const FVector& FieldLocation);
 
 private:
 	/// Equip sound for the weapon

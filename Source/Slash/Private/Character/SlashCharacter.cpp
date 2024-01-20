@@ -133,7 +133,7 @@ void ASlashCharacter::Turn(const FInputActionValue& Value)
 void ASlashCharacter::EKeypressed()
 {
 	// Attach weapon to SlashCharacter's right hand socket
-	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem); Weapon)
+	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem))
 	{
 		Weapon->Equip(GetMesh(), RightHandSocketName);
 		CharacterState = ECharacterState::EquippedOneHandedWeapon;
