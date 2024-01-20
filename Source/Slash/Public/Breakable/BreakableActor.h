@@ -20,8 +20,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
+	/// Fractured geometry collection
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UGeometryCollectionComponent> GeometryCollectionComponent;
 
+	/// Capsule component for collision with Pawn actors only, as the Breakable Actor itself has no
+	/// collision with Pawns so fractured pieces don't collide
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UCapsuleComponent> CapsuleComponent;
+
+private:
+	bool bBroken = false;
+	
+	/// Treasure class to spawn
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ATreasure> TreasureClass;
 };
