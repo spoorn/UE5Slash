@@ -34,5 +34,5 @@ private:
 	
 	/// Treasure class to spawn
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ATreasure> TreasureClass;
+	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
 };

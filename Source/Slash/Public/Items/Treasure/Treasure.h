@@ -23,4 +23,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USoundBase> PickupSound;
+
+	UPROPERTY(EditAnywhere, Category = "Treasure Properties")
+	int32 Gold;
 };

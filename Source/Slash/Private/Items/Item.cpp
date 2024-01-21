@@ -10,11 +10,13 @@ AItem::AItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Blanket root component so other components can be transformed
+	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
-	RootComponent = ItemMesh;
+	ItemMesh->SetupAttachment(GetRootComponent());
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("ItemSphereComponent");
-	SphereComponent->SetupAttachment(GetRootComponent());
+	SphereComponent->SetupAttachment(ItemMesh);
 	SphereComponent->SetSphereRadius(100);
 }
 
@@ -72,6 +74,7 @@ void AItem::Tick(float DeltaTime)
 	if (ItemState == EItemState::Hovering)
 	{
 		AddActorWorldOffset(FVector(0, 0, TransformedSin()));
+		AddActorWorldRotation(FRotator(0, DeltaTime * -45, 0));
 	}
 }
 
