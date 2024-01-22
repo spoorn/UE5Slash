@@ -20,7 +20,7 @@ class SLASH_API AWeapon : public AItem
 public:
 	AWeapon();
 	
-	void Equip(USceneComponent* SceneComponent, FName InSocketName);
+	void Equip(USceneComponent* SceneComponent, FName InSocketName, TObjectPtr<AActor> OwnerActor, TObjectPtr<APawn> InstigatorActor);
 	void AttachMeshToComponent(USceneComponent* SceneComponent, FName InSocketName);
 
 	/// Play Equip sound effect
@@ -50,12 +50,16 @@ protected:
 	void CreateFields(const FVector& FieldLocation);
 
 private:
+	/// How much damage this weapon deals
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float Damage = 20;
+	
 	/// Equip sound for the weapon
-	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	TObjectPtr<USoundBase> EquipSound;
 
 	/// Collision box
-	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	TObjectPtr<UBoxComponent> CollisionBox;
 
 	/// Start for collision box tracing

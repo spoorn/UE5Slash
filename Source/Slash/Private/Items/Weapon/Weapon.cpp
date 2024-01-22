@@ -3,6 +3,7 @@
 
 #include "Items/Weapon/Weapon.h"
 
+#include "NiagaraComponent.h"
 #include "Asset/AssetMacros.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
@@ -47,8 +48,10 @@ void AWeapon::BeginPlay()
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxBeginOverlap);
 }
 
-void AWeapon::Equip(USceneComponent* SceneComponent, FName InSocketName)
+void AWeapon::Equip(USceneComponent* SceneComponent, FName InSocketName, TObjectPtr<AActor> OwnerActor, TObjectPtr<APawn> InstigatorActor)
 {
+	SetOwner(OwnerActor);
+	SetInstigator(InstigatorActor);
 	if (SceneComponent)
 	{
 		AttachMeshToComponent(SceneComponent, InSocketName);
@@ -58,6 +61,10 @@ void AWeapon::Equip(USceneComponent* SceneComponent, FName InSocketName)
 		{
 			// Disable collision for the sphere so we don't get overlapping item anymore
 			SphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		if (GlowParticles)
+		{
+			GlowParticles->Deactivate();
 		}
 	}
 }
@@ -102,6 +109,8 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 				CreateFields(HitResult.ImpactPoint);
 			}
 			CollisionIgnoreActors.AddUnique(HitActor);
+
+			UGameplayStatics::ApplyDamage(HitActor, Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 		}
 	}
 }

@@ -4,13 +4,18 @@
 #include "Enemy/Enemy.h"
 
 #include "Asset/AssetMacros.h"
+#include "Components/AttributeComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "HUD/HealthBarComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
 
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Don't need to attach as it has no mesh or any attachable property
+	Attributes = CreateDefaultSubobject<UAttributeComponent>("Attributes");
 
 	// Enemy mesh should be WorldDynamic to have collision with player weapons
 	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
@@ -33,12 +38,20 @@ AEnemy::AEnemy()
 	// Set default hit sound and hit particle effect
 	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_HitFlesh", HitSound);
 	LOAD_ASSET_TO_VARIABLE(UParticleSystem, "/Game/VFX/Blood/Effects/ParticleSystems/Gameplay/Player/P_body_bullet_impact", HitParticles);
+
+	HealthBar = CreateDefaultSubobject<UHealthBarComponent>("HealthBar");
+	HealthBar->SetupAttachment(GetRootComponent());
+	HealthBar->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (HealthBar)
+	{
+		HealthBar->SetHealthPercent(1);
+	}
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
@@ -105,5 +118,18 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 			UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, ImpactPoint);
 		}
 	}
+}
+
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Attributes)
+	{
+		Attributes->ReceiveDamage(DamageAmount);
+		if (HealthBar)
+		{
+			HealthBar->SetHealthPercent(Attributes->GetHealthPercent());
+		}
+	}
+	return DamageAmount;
 }
 

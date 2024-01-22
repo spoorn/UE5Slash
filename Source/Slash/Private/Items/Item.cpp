@@ -5,6 +5,8 @@
 
 #include "Character/SlashCharacter.h"
 #include "Components/SphereComponent.h"
+#include "NiagaraComponent.h"
+#include "Asset/AssetMacros.h"
 
 AItem::AItem()
 {
@@ -18,6 +20,10 @@ AItem::AItem()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("ItemSphereComponent");
 	SphereComponent->SetupAttachment(ItemMesh);
 	SphereComponent->SetSphereRadius(100);
+
+	GlowParticles = CreateDefaultSubobject<UNiagaraComponent>("GlowParticles");
+	GlowParticles->SetupAttachment(ItemMesh);
+	LOAD_ASSET_TO_CALLBACK(UNiagaraSystem, "/Game/Effects/Niagara/NS_Embers.NS_Embers", GlowParticles->SetAsset);
 }
 
 void AItem::BeginPlay()

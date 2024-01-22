@@ -135,11 +135,10 @@ void ASlashCharacter::EKeypressed()
 	// Attach weapon to SlashCharacter's right hand socket
 	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem))
 	{
-		Weapon->Equip(GetMesh(), RightHandSocketName);
+		Weapon->Equip(GetMesh(), RightHandSocketName, this, this);
 		CharacterState = ECharacterState::EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
 		EquippedWeapon = Weapon;
-		EquippedWeapon->SetOwner(this);
 	} else
 	{
 		// Play animation montage and change state for un/equipping weapons
