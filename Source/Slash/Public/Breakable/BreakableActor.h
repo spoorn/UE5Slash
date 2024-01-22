@@ -17,6 +17,10 @@ public:
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
+	/// Called when the geometry collection breaks due to chaos physics
+	UFUNCTION()
+	void HandleOnChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
+
 protected:
 	virtual void BeginPlay() override;
 

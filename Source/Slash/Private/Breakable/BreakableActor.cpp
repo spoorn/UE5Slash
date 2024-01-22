@@ -14,6 +14,7 @@ ABreakableActor::ABreakableActor()
 	GeometryCollectionComponent = CreateDefaultSubobject<UGeometryCollectionComponent>("GeometryCollection");
 	SetRootComponent(GeometryCollectionComponent);
 	GeometryCollectionComponent->SetGenerateOverlapEvents(true);
+	GeometryCollectionComponent->SetNotifyBreaks(true);
 
 	TreasureClasses.Add(ATreasure::StaticClass());
 
@@ -38,21 +39,28 @@ ABreakableActor::ABreakableActor()
 
 void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
+	// Empty, but allows getting hit by player weapon
+}
+
+void ABreakableActor::HandleOnChaosBreakEvent(const FChaosBreakEvent& BreakEvent)
+{
 	if (bBroken) return;  // Prevent this from being called multiple times due to multiple fractured meshes
 	if (UWorld* World = GetWorld(); World && TreasureClasses.Num() > 0)
 	{
 		FVector Location = GetActorLocation();
-		Location.Z += 105;
+		Location.Z += 75;
 		const int32 Selection = FMath::RandRange(0, TreasureClasses.Num() - 1);
 		World->SpawnActor<ATreasure>(TreasureClasses[Selection], Location, GetActorRotation());
 	}
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	SetLifeSpan(3);
 	bBroken = true;
 }
 
 void ABreakableActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	GeometryCollectionComponent->OnChaosBreakEvent.AddDynamic(this, &ABreakableActor::HandleOnChaosBreakEvent);
 }
 
