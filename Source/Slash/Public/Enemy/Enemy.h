@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/CharacterTypes.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
+enum class EDeathPose : uint8;
 class UWidgetComponent;
 class UAttributeComponent;
 
@@ -29,21 +31,40 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	/// Handle when this enemy dies
+	void Die();
+
+	/// Directional hit reaction
+	void DirectionalHitReact(const FVector& ImpactPoint);
+
 	/// Play the Hit React animation montage
 	void PlayHitReactMontage(const FName& SectionName);
+
+	UPROPERTY(BlueprintReadOnly)
+	EDeathPose DeathPose = EDeathPose::Alive;
 
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAttributeComponent> Attributes;
 
+	/// Health bar widget component
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UHealthBarComponent> HealthBar;
+
+	/// Keep track of who this enemy is in focused combat with
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AActor> CombatTarget;
+
+	/// Radius before losing focus on combat target
+	double CombatRadius = 500;
 	
 	/**
 	 * Animation Montages
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> HitReactMontage;
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	TObjectPtr<UAnimMontage> DeathMontage;
 
 	/// Sound effect to play when enemy is hit by weapon
 	UPROPERTY(EditAnywhere, Category = Sound)

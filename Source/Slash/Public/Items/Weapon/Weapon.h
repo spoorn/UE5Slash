@@ -52,7 +52,7 @@ protected:
 private:
 	/// How much damage this weapon deals
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float Damage = 20;
+	float Damage = 40;
 	
 	/// Equip sound for the weapon
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")

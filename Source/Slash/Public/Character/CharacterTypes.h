@@ -20,3 +20,16 @@ enum class EActionState : uint8
 	Attacking,
 	EquippingWeapon
 };
+
+/// Death pose state
+UENUM(BlueprintType)
+enum class EDeathPose : uint8
+{
+	Alive,
+	Death1,
+	Death2,
+	Death3,
+	Death4,
+	Death5,
+	Death6
+};

@@ -51,33 +51,30 @@ void AEnemy::BeginPlay()
 	if (HealthBar)
 	{
 		HealthBar->SetHealthPercent(1);
+		HealthBar->SetVisibility(false);
 	}
 }
 
-void AEnemy::PlayHitReactMontage(const FName& SectionName)
+void AEnemy::Die()
 {
-	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && HitReactMontage)
+	// Play death montage
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && DeathMontage)
 	{
-		AnimInstance->Montage_Play(HitReactMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+		AnimInstance->Montage_Play(DeathMontage);
+		const int32 Selection = FMath::RandRange(0, DeathMontage->GetNumSections() - 1);
+		DeathPose = static_cast<EDeathPose>(Selection + 1);
+		AnimInstance->Montage_JumpToSection(DeathMontage->GetSectionName(Selection), DeathMontage);
 	}
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (HealthBar)
+	{
+		HealthBar->SetVisibility(false);
+	}
+	SetLifeSpan(5);
 }
 
-void AEnemy::Tick(float DeltaTime)
+void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
 {
-	Super::Tick(DeltaTime);
-
-}
-
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
-{
-	//DRAW_SPHERE(ImpactPoint);
 	const FVector Forward = GetActorForwardVector();
 	// Level impact with actor's Z location so debug information is visually accurate
 	const FVector ImpactLeveled = FVector(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
@@ -109,6 +106,55 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 	}
 
 	PlayHitReactMontage(SectionName);
+}
+
+void AEnemy::PlayHitReactMontage(const FName& SectionName)
+{
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+	}
+}
+
+void AEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (CombatTarget)
+	{
+		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
+		if (DistanceToTarget > CombatRadius)
+		{
+			CombatTarget = nullptr;
+			if (HealthBar)
+			{
+				HealthBar->SetVisibility(false);
+			}
+		}
+	}
+}
+
+void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	//DRAW_SPHERE(ImpactPoint);
+	if (HealthBar)
+	{
+		HealthBar->SetVisibility(true);
+	}
+	if (Attributes && Attributes->IsAlive())
+	{
+		DirectionalHitReact(ImpactPoint);
+	} else
+	{
+		Die();
+	}
 
 	if (HitSound)
 	{
@@ -130,6 +176,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 			HealthBar->SetHealthPercent(Attributes->GetHealthPercent());
 		}
 	}
+	CombatTarget = EventInstigator->GetPawn();
 	return DamageAmount;
 }
 

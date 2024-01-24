@@ -17,8 +17,13 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/// Callback to apply damage
 	void ReceiveDamage(float Damage);
+	/// Get percentage of health left
 	float GetHealthPercent();
+
+	/// Whether entity is alive based on health and max health
+	bool IsAlive();
 
 protected:
 	virtual void BeginPlay() override;
