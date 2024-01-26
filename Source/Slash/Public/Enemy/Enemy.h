@@ -8,6 +8,7 @@
 #include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
+class AAIController;
 enum class EDeathPose : uint8;
 class UWidgetComponent;
 class UAttributeComponent;
@@ -40,6 +41,12 @@ protected:
 	/// Play the Hit React animation montage
 	void PlayHitReactMontage(const FName& SectionName);
 
+	/// Return whether in target range of a target actor
+	FORCEINLINE bool InTargetRange(TObjectPtr<AActor> Target, double Radius);
+
+	/// Move Enemy to a target actor
+	FORCEINLINE void MoveToTarget(TObjectPtr<AActor> Target);
+
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::Alive;
 
@@ -56,7 +63,39 @@ private:
 	TObjectPtr<AActor> CombatTarget;
 
 	/// Radius before losing focus on combat target
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	double CombatRadius = 500;
+
+	/// Radius before losing focus on patrol target
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	double PatrolRadius = 200;
+
+	// Timer handle for wait time at patrol points
+	// FTimer is a timer that holds a callback function that executes when timer is finished
+	FTimerHandle PatrolTimer;
+	void PatrolTimerFinished();
+
+	/// Min wait time in seconds for switching patrol targets
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float PatrolWaitMin = 5;
+	/// Max wait time in seconds for switching patrol targets
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float PatrolWaitMax = 10;
+
+	/**
+	 * Navigation
+	 */
+
+	UPROPERTY()
+	TObjectPtr<AAIController> AIController;
+
+	// Current patrol target
+	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
+	TObjectPtr<AActor> PatrolTarget;
+
+	// Possible patrol targets
+	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
+	TArray<TObjectPtr<AActor>> PatrolTargets;
 	
 	/**
 	 * Animation Montages

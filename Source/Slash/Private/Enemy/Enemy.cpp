@@ -3,12 +3,15 @@
 
 #include "Enemy/Enemy.h"
 
+#include "AIController.h"
 #include "Asset/AssetMacros.h"
 #include "Components/AttributeComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Navigation/PathFollowingComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -42,6 +45,13 @@ AEnemy::AEnemy()
 	HealthBar = CreateDefaultSubobject<UHealthBarComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
 	HealthBar->SetWidgetSpace(EWidgetSpace::Screen);
+
+	// Limit walk speed to be slower than character
+	GetCharacterMovement()->MaxWalkSpeed = 300;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
 }
 
 void AEnemy::BeginPlay()
@@ -53,6 +63,9 @@ void AEnemy::BeginPlay()
 		HealthBar->SetHealthPercent(1);
 		HealthBar->SetVisibility(false);
 	}
+
+	AIController = Cast<AAIController>(GetController());
+	MoveToTarget(PatrolTarget);
 }
 
 void AEnemy::Die()
@@ -66,6 +79,8 @@ void AEnemy::Die()
 		AnimInstance->Montage_JumpToSection(DeathMontage->GetSectionName(Selection), DeathMontage);
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCharacterMovement()->Deactivate();
 	if (HealthBar)
 	{
 		HealthBar->SetVisibility(false);
@@ -117,20 +132,59 @@ void AEnemy::PlayHitReactMontage(const FName& SectionName)
 	}
 }
 
+bool AEnemy::InTargetRange(TObjectPtr<AActor> Target, double Radius)
+{
+	return Target && (Target->GetActorLocation() - GetActorLocation()).Size() <= Radius;
+}
+
+void AEnemy::MoveToTarget(TObjectPtr<AActor> Target)
+{
+	if (!AIController || !Target) return;
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor(Target);
+	MoveRequest.SetAcceptanceRadius(15);
+	AIController->MoveTo(MoveRequest);
+}
+
+void AEnemy::PatrolTimerFinished()
+{
+	MoveToTarget(PatrolTarget);
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (CombatTarget)
+	
+	if (!InTargetRange(CombatTarget, CombatRadius))
 	{
-		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
-		if (DistanceToTarget > CombatRadius)
+		CombatTarget = nullptr;
+		if (HealthBar)
 		{
-			CombatTarget = nullptr;
-			if (HealthBar)
+			HealthBar->SetVisibility(false);
+		}
+	}
+
+	// Patrol between targets
+	// When within range of patrol target, switch targets
+	if (AIController && InTargetRange(PatrolTarget, PatrolRadius))
+	{
+		TArray<TObjectPtr<AActor>> ValidTargets;
+		for (auto Target : PatrolTargets)
+		{
+			if (Target != PatrolTarget)
 			{
-				HealthBar->SetVisibility(false);
+				ValidTargets.Add(Target);
 			}
+		}
+		
+		const int32 NumTargets = ValidTargets.Num();
+		if (NumTargets > 0)
+		{
+			const int32 Selection = FMath::RandRange(0, NumTargets - 1);
+			PatrolTarget = ValidTargets[Selection];
+			// Add delay for patrolling
+			const int32 RandomDelay = FMath::RandRange(PatrolWaitMin, PatrolWaitMax);
+			GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, RandomDelay);
 		}
 	}
 }
