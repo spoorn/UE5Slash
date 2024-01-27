@@ -15,8 +15,11 @@ AWeapon::AWeapon()
 	// Default equip sound
 	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_Shink", EquipSound);
 
+	// Use collision box instead
+	ItemMesh->SetCollisionProfileName(FName("NoCollision"));
+
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("WeaponCollisionBox");
-	CollisionBox->SetupAttachment(GetRootComponent());
+	CollisionBox->SetupAttachment(ItemMesh);
 	
 	// Default for swords
 	CollisionBox->InitBoxExtent(FVector(3, 2.2, 40));
@@ -28,9 +31,9 @@ AWeapon::AWeapon()
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	// Positions will be set in BP
 	BoxTraceStart = CreateDefaultSubobject<USceneComponent>("BoxTraceStart");
-	BoxTraceStart->SetupAttachment(GetRootComponent());
+	BoxTraceStart->SetupAttachment(ItemMesh);
 	BoxTraceEnd = CreateDefaultSubobject<USceneComponent>("BoxTraceEnd");
-	BoxTraceEnd->SetupAttachment(GetRootComponent());
+	BoxTraceEnd->SetupAttachment(ItemMesh);
 }
 
 void AWeapon::PlayEquipSound()
@@ -94,7 +97,7 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	{
 		const FVector Start = BoxTraceStart->GetComponentLocation();
 		const FVector End = BoxTraceEnd->GetComponentLocation();
-		const FVector BoxHalfSize = FVector(5, 5, 5);
+		const FVector BoxHalfSize = FVector(5 * CollisionBox->GetComponentScale().X, 5 * CollisionBox->GetComponentScale().Y, 5);
 		FHitResult HitResult;
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
