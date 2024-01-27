@@ -4,6 +4,8 @@
 
 #pragma once
 
+inline static FName SlashCharacterTagName = FName("SlashCharacter");
+
 /// Character types driving animations
 UENUM(BlueprintType)
 enum class ECharacterState : uint8
