@@ -34,6 +34,8 @@ protected:
 
 	/// Handle when this enemy dies
 	virtual void Die() override;
+	/// Callback when actor is destroyed
+	virtual void Destroyed() override;
 
 	/// On pawn seen callback
 	UFUNCTION()
@@ -68,6 +70,10 @@ private:
 	/// Pawn sensor
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UPawnSensingComponent> PawnSensingComponent;
+
+	/// Weapon the Enemy can equip
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TSubclassOf<AWeapon> WeaponClass;
 
 	/// Keep track of who this enemy is in focused combat with
 	UPROPERTY(VisibleAnywhere)

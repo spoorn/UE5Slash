@@ -16,6 +16,10 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 	GENERATED_BODY()
 
 public:
+	// Should be created in Blueprints
+	static inline FName RightHandSocketName = FName("RightHandSocket");
+	static inline FName BackSocketName = FName("BackSocket");
+	
 	ABaseCharacter();
 
 	virtual void Tick(float DeltaTime) override;

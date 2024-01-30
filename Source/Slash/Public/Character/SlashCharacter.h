@@ -76,9 +76,6 @@ protected:
 	TObjectPtr<UInputAction> AttackAction;
 
 private:
-	// Should be created in Blueprints
-	static inline FName RightHandSocketName = FName("RightHandSocket");
-	static inline FName BackSocketName = FName("BackSocket");
 
 	/**
 	 * States

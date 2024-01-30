@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
+#include "Items/Weapon/Weapon.h"
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -75,6 +76,13 @@ void AEnemy::BeginPlay()
 	{
 		PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemy::OnPawnSeen);
 	}
+
+	if (UWorld* World = GetWorld(); World && WeaponClass)
+	{
+		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
+		DefaultWeapon->Equip(GetMesh(), RightHandSocketName, this, this);
+		EquippedWeapon = DefaultWeapon;
+	}
 }
 
 void AEnemy::Die()
@@ -95,6 +103,15 @@ void AEnemy::Die()
 		HealthBar->SetVisibility(false);
 	}
 	SetLifeSpan(5);
+}
+
+void AEnemy::Destroyed()
+{
+	Super::Destroyed();
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
+	}
 }
 
 void AEnemy::OnPawnSeen(APawn* Pawn)
