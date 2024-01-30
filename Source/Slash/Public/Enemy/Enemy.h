@@ -4,19 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "EnemyTypes.h"
+#include "Character/BaseCharacter.h"
 #include "Character/CharacterTypes.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
 enum class EEnemyState : uint8;
 class AAIController;
 enum class EDeathPose : uint8;
 class UWidgetComponent;
-class UAttributeComponent;
 
 UCLASS()
-class SLASH_API AEnemy : public ACharacter, public IHitInterface
+class SLASH_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -35,13 +33,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	/// Handle when this enemy dies
-	void Die();
-
-	/// Directional hit reaction
-	void DirectionalHitReact(const FVector& ImpactPoint);
-
-	/// Play the Hit React animation montage
-	void PlayHitReactMontage(const FName& SectionName);
+	virtual void Die() override;
 
 	/// On pawn seen callback
 	UFUNCTION()
@@ -68,9 +60,6 @@ private:
 	/**
 	 * Components
 	 */
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAttributeComponent> Attributes;
 
 	/// Health bar widget component
 	UPROPERTY(VisibleAnywhere)
@@ -123,21 +112,5 @@ private:
 	// Possible patrol targets
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<TObjectPtr<AActor>> PatrolTargets;
-	
-	/**
-	 * Animation Montages
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	TObjectPtr<UAnimMontage> HitReactMontage;
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	TObjectPtr<UAnimMontage> DeathMontage;
-
-	/// Sound effect to play when enemy is hit by weapon
-	UPROPERTY(EditAnywhere, Category = Sound)
-	TObjectPtr<USoundBase> HitSound;
-
-	/// Hit particles, legacy Cascade system
-	UPROPERTY(EditAnywhere, Category = Particles)
-	TObjectPtr<UParticleSystem> HitParticles;
 	
 };

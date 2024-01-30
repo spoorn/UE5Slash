@@ -75,16 +75,6 @@ ASlashCharacter::ASlashCharacter()
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Equip", EquipMontage);
 }
 
-void ASlashCharacter::SetWeaponCollision(ECollisionEnabled::Type CollisionType)
-{
-	if (EquippedWeapon && EquippedWeapon->GetCollisionBox())
-	{
-		EquippedWeapon->GetCollisionBox()->SetCollisionEnabled(CollisionType);
-		// Clear collision ignore actors for attack at the beginning and end of each attack
-		EquippedWeapon->CollisionIgnoreActors.Empty();
-	}
-}
-
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -158,9 +148,14 @@ void ASlashCharacter::EKeypressed()
 	}
 }
 
+bool ASlashCharacter::CanAttack()
+{
+	return ActionState == EActionState::Unoccupied && CharacterState != ECharacterState::Unequipped;
+}
+
 void ASlashCharacter::Attack()
 {
-	if (ActionState == EActionState::Unoccupied && CharacterState != ECharacterState::Unequipped)
+	if (CanAttack())
 	{
 		PlayAttackMontage();
 		ActionState = EActionState::Attacking;

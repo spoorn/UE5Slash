@@ -6,6 +6,7 @@ Assets are too large to check in to free tier.  This also requires
 - Medieval Dungeon
 - Animal Variety Pack
 - Starter Content
+- Free Fantasy Weapon Sample Pack
 - Megascans:
     Slash\Content\Megascans\Surfaces 
     Slash\Content\Megascans\Surfaces\Rocky_Soil_Ground_ve0hedi 

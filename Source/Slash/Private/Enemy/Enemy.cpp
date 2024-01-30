@@ -18,9 +18,6 @@ AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Don't need to attach as it has no mesh or any attachable property
-	Attributes = CreateDefaultSubobject<UAttributeComponent>("Attributes");
-
 	// Enemy mesh should be WorldDynamic to have collision with player weapons
 	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
 	// Block visibility channel for hit traces
@@ -98,50 +95,6 @@ void AEnemy::Die()
 		HealthBar->SetVisibility(false);
 	}
 	SetLifeSpan(5);
-}
-
-void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
-{
-	const FVector Forward = GetActorForwardVector();
-	// Level impact with actor's Z location so debug information is visually accurate
-	const FVector ImpactLeveled = FVector(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
-	const FVector ToImpact = (ImpactLeveled - GetActorLocation()).GetSafeNormal();
-	// Get angle in degrees
-	double Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Forward, ToImpact)));
-
-	// LHR: if negative, to left, if positive, to right of actor's forward
-	const FVector CrossProduct = FVector::CrossProduct(Forward, ToImpact);
-
-	if (CrossProduct.Z < 0)
-	{
-		Angle *= -1;
-	}
-
-	FName SectionName;
-	if (Angle < 45 && Angle >= -45)
-	{
-		SectionName = FName("FromFront");
-	} else if (Angle >= -135 && Angle < -45)
-	{
-		SectionName = FName("FromBack");
-	} else if (Angle >= 45 && Angle < 135)
-	{
-		SectionName = FName("FromRight");
-	} else
-	{
-		SectionName = FName("FromLeft");
-	}
-
-	PlayHitReactMontage(SectionName);
-}
-
-void AEnemy::PlayHitReactMontage(const FName& SectionName)
-{
-	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && HitReactMontage)
-	{
-		AnimInstance->Montage_Play(HitReactMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
-	}
 }
 
 void AEnemy::OnPawnSeen(APawn* Pawn)
