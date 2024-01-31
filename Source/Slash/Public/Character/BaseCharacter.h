@@ -34,15 +34,24 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual bool IsAlive();
+	
 	/// True if character can attack, else false
 	virtual bool CanAttack();
 	/// Begin attack
 	virtual void Attack();
+	/// Select a random section from animation montage and play it, returning the section index
+	/// returns -1 if can't play the montage
+	int32 PlayRandomMontageSection(TObjectPtr<UAnimMontage> Montage);
 	/// Play Attack Montage animation
 	virtual void PlayAttackMontage();
 	/// End of attack notification
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
+
+	/// Handle taking damage
+	virtual void HandleDamage(float DamageAmount);
 
 	/// Handle when this enemy dies
 	virtual void Die();
@@ -51,6 +60,10 @@ protected:
 	void PlayHitReactMontage(const FName& SectionName);
 	/// Directional hit reaction
 	void DirectionalHitReact(const FVector& ImpactPoint);
+	/// Play sound for receiving a hit
+	void PlayHitSound(const FVector& ImpactPoint);
+	/// Spawn particles for receiving a hit
+	void SpawnHitParticles(const FVector& ImpactPoint);
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAttributeComponent> Attributes;
@@ -72,7 +85,7 @@ protected:
 	/// Animation montage on death
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> DeathMontage;
-
+	
 	/**
 	 * Sounds
 	 */

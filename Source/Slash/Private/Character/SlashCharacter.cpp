@@ -155,6 +155,7 @@ bool ASlashCharacter::CanAttack()
 
 void ASlashCharacter::Attack()
 {
+	Super::Attack();
 	if (CanAttack())
 	{
 		PlayAttackMontage();
@@ -173,6 +174,7 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 
 void ASlashCharacter::PlayAttackMontage()
 {
+	Super::PlayAttackMontage();
 	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && AttackMontage)
 	{
 		// Pick animation instance at random

@@ -5,7 +5,10 @@
 
 #include "Components/AttributeComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Items/Weapon/Weapon.h"
+#include "Kismet/GameplayStatics.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -21,6 +24,11 @@ void ABaseCharacter::BeginPlay()
 	
 }
 
+bool ABaseCharacter::IsAlive()
+{
+	return Attributes && Attributes->IsAlive();
+}
+
 bool ABaseCharacter::CanAttack()
 {
 	return false;
@@ -28,6 +36,20 @@ bool ABaseCharacter::CanAttack()
 
 void ABaseCharacter::Attack()
 {
+}
+
+int32 ABaseCharacter::PlayRandomMontageSection(TObjectPtr<UAnimMontage> Montage)
+{
+	// TODO: Refactor this to caller to optimize
+	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && Montage)
+	{
+		// Pick animation instance at random
+		const int32 Selection = FMath::RandRange(0, Montage->GetNumSections() - 1);
+		AnimInstance->Montage_Play(Montage);
+		AnimInstance->Montage_JumpToSection(Montage->GetSectionName(Selection), Montage);
+		return Selection;
+	}
+	return -1;
 }
 
 void ABaseCharacter::PlayAttackMontage()
@@ -38,8 +60,19 @@ void ABaseCharacter::AttackEnd()
 {
 }
 
+void ABaseCharacter::HandleDamage(float DamageAmount)
+{
+	if (Attributes)
+	{
+		Attributes->ReceiveDamage(DamageAmount);
+	}
+}
+
 void ABaseCharacter::Die()
 {
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCharacterMovement()->Deactivate();
 }
 
 void ABaseCharacter::PlayHitReactMontage(const FName& SectionName)
@@ -84,6 +117,22 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	}
 
 	PlayHitReactMontage(SectionName);
+}
+
+void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
+{
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);
+	}
+}
+
+void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
+{
+	if (HitParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, ImpactPoint);
+	}
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

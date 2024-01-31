@@ -27,11 +27,11 @@ enum class EActionState : uint8
 UENUM(BlueprintType)
 enum class EDeathPose : uint8
 {
-	Alive,
 	Death1,
 	Death2,
 	Death3,
 	Death4,
 	Death5,
-	Death6
+	Death6,
+	MAX UMETA(Hidden)
 };

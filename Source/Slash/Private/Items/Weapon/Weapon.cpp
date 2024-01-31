@@ -109,6 +109,8 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			
 			if (IHitInterface* HitInterface = Cast<IHitInterface>(HitActor))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("GetHit %s"), *HitActor->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("---"));
 				HitInterface->Execute_GetHit(HitActor, HitResult.ImpactPoint);
 				// Only create the field if hitting a hittable actor, so hitting terrain doesn't generate a physics field
 				CreateFields(HitResult.ImpactPoint);

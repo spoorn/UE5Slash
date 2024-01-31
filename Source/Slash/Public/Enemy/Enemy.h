@@ -22,15 +22,19 @@ public:
 	AEnemy();
 
 	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual bool CanAttack() override;
+	virtual void Attack() override;
+	virtual void PlayAttackMontage() override;
+
+	virtual void HandleDamage(float DamageAmount) override;
 
 	/// Handle when this enemy dies
 	virtual void Die() override;
@@ -53,11 +57,67 @@ protected:
 	FORCEINLINE void CheckPatrolTarget();
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose = EDeathPose::Alive;
+	EDeathPose DeathPose;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::Patrolling;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float DeathLifeSpan = 8;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	EEnemyState EnemyState = EEnemyState::Patrolling;
+	/**
+	 * AI Behavior
+	 */
+
+	/// Hide health bar widget
+	void HideHealthBar();
+	/// Show health bar widget
+	void ShowHealthBar();
+	/// Lose interest in the combat target
+	void LoseInterest();
+	/// Start patrolling action
+	void StartPatrolling();
+	/// Chase combat target
+	void ChaseTarget();
+	/// Check if enemy is outside of its combat radius with CombatTarget
+	bool IsOutsideCombatRadius();
+	/// Check if enemy is within its attack radius of Combat Target
+	bool IsInAttackRadius();
+	/// Check if in chasing state
+	bool IsChasing();
+	/// Check if enemy is attacking
+	bool IsAttacking();
+	/// Check if enemy is dead
+	bool IsDead();
+	/// Check if enemy is engaged in combat
+	bool IsEngaged();
+
+
+	/**
+	 * Combat
+	 */
+
+	/// Timer handle for how long enemy stays in an Attacking state
+	FTimerHandle AttackTimer;
+	UFUNCTION()
+	void StartAttackTimer();
+	/// Cancel the patrol timer
+	void ClearAttackTimer();
+
+	/// Minimum time in seconds of attack timer
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackMin = 0.5;
+	/// Max time in seconds of attack timer
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackMax = 1;
+	
+	
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float PatrollingSpeed = 125;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float ChasingSpeed = 300;
+
 	
 	/**
 	 * Components
@@ -85,7 +145,7 @@ private:
 
 	/// Radius for attack radius, within combat radius
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	double AttackRadius = 200;
+	double AttackRadius = 140;
 
 	/// Radius before losing focus on patrol target
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
@@ -96,6 +156,8 @@ private:
 	FTimerHandle PatrolTimer;
 	UFUNCTION()
 	void PatrolTimerFinished();
+	/// Cancel the patrol timer
+	void ClearPatrolTimer();
 
 	/// Min wait time in seconds for switching patrol targets
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
