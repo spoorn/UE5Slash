@@ -168,6 +168,17 @@ void ABaseCharacter::SetWeaponCollision(ECollisionEnabled::Type CollisionType)
 	if (EquippedWeapon && EquippedWeapon->GetCollisionBox())
 	{
 		EquippedWeapon->GetCollisionBox()->SetCollisionEnabled(CollisionType);
+		if (CollisionType == ECollisionEnabled::NoCollision)
+		{
+			// If not in the middle of an attack and when collision notified to be enabled,
+			// just disable overlap events to prevent double hitting enemies outside the
+			// hit collision window. This is precautionary and can instead be avoided by
+			// configuring the hit window and box on the weapon to be more accurate
+			EquippedWeapon->GetCollisionBox()->SetGenerateOverlapEvents(false);
+		} else
+		{
+			EquippedWeapon->GetCollisionBox()->SetGenerateOverlapEvents(true);
+		}
 		// Clear collision ignore actors for attack at the beginning and end of each attack
 		EquippedWeapon->CollisionIgnoreActors.Empty();
 	}
