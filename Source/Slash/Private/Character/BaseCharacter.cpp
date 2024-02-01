@@ -3,12 +3,14 @@
 
 #include "Character/BaseCharacter.h"
 
+#include "Asset/AssetMacros.h"
 #include "Components/AttributeComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Items/Weapon/Weapon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -16,6 +18,19 @@ ABaseCharacter::ABaseCharacter()
 
 	// Don't need to attach as it has no mesh or any attachable property
 	Attributes = CreateDefaultSubobject<UAttributeComponent>("Attributes");
+
+	// Always ignore camera
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	// Always allow overlap events for characters
+	GetMesh()->SetGenerateOverlapEvents(true);
+	// Block visibility channel for hit traces
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	// Set default hit sound and hit particle effect
+	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_HitFlesh", HitSound);
+	LOAD_ASSET_TO_VARIABLE(UParticleSystem, "/Game/VFX/Blood/Effects/ParticleSystems/Gameplay/Player/P_body_bullet_impact", HitParticles);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -54,6 +69,7 @@ int32 ABaseCharacter::PlayRandomMontageSection(TObjectPtr<UAnimMontage> Montage)
 
 void ABaseCharacter::PlayAttackMontage()
 {
+	PlayRandomMontageSection(AttackMontage);
 }
 
 void ABaseCharacter::AttackEnd()

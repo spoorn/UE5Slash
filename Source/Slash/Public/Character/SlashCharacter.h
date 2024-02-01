@@ -24,8 +24,9 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 public:
 	ASlashCharacter();
 
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
 	FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() { return OverlappingItem; }
 	FORCEINLINE void SetOverlappingItem(TObjectPtr<AItem> Item) { OverlappingItem = Item; }
@@ -41,7 +42,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
 	void EKeypressed();
-	virtual bool CanAttack() override;
+	FORCEINLINE virtual bool CanAttack() override;
 	virtual void Attack() override;
 
 	/**
@@ -49,7 +50,6 @@ protected:
 	 */
 	
 	void PlayEquipMontage(const FName& SectionName);
-	virtual void PlayAttackMontage() override;
 	virtual void AttackEnd() override;
 	
 	/// Equip weapon from back slot

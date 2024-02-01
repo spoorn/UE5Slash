@@ -22,17 +22,16 @@ public:
 	AEnemy();
 
 	virtual void Tick(float DeltaTime) override;
-	
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	
 protected:
 	virtual void BeginPlay() override;
 
 	virtual bool CanAttack() override;
 	virtual void Attack() override;
-	virtual void PlayAttackMontage() override;
+	virtual void AttackEnd() override;
 
 	virtual void HandleDamage(float DamageAmount) override;
 
@@ -51,29 +50,23 @@ protected:
 	/// Move Enemy to a target actor
 	FORCEINLINE void MoveToTarget(TObjectPtr<AActor> Target);
 
-	/// Check if combat target should change
-	FORCEINLINE void CheckCombatTarget();
-	/// Check if patrol target should change
-	FORCEINLINE void CheckPatrolTarget();
-
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::Patrolling;
 
-	UPROPERTY(EditAnywhere, Category = Combat)
-	float DeathLifeSpan = 8;
-
 private:
+	void SpawnDefaultWeapon();
+	
 	/**
 	 * AI Behavior
 	 */
 
 	/// Hide health bar widget
-	void HideHealthBar();
+	FORCEINLINE void HideHealthBar();
 	/// Show health bar widget
-	void ShowHealthBar();
+	FORCEINLINE void ShowHealthBar();
 	/// Lose interest in the combat target
 	void LoseInterest();
 	/// Start patrolling action
@@ -81,17 +74,21 @@ private:
 	/// Chase combat target
 	void ChaseTarget();
 	/// Check if enemy is outside of its combat radius with CombatTarget
-	bool IsOutsideCombatRadius();
+	FORCEINLINE bool IsOutsideCombatRadius();
 	/// Check if enemy is within its attack radius of Combat Target
-	bool IsInAttackRadius();
+	FORCEINLINE bool IsInAttackRadius();
 	/// Check if in chasing state
-	bool IsChasing();
+	FORCEINLINE bool IsChasing();
 	/// Check if enemy is attacking
-	bool IsAttacking();
+	FORCEINLINE bool IsAttacking();
 	/// Check if enemy is dead
-	bool IsDead();
+	FORCEINLINE bool IsDead();
 	/// Check if enemy is engaged in combat
-	bool IsEngaged();
+	FORCEINLINE bool IsEngaged();
+	/// Check if combat target should change
+	FORCEINLINE void CheckCombatTarget();
+	/// Check if patrol target should change
+	FORCEINLINE void CheckPatrolTarget();
 
 
 	/**
@@ -118,6 +115,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ChasingSpeed = 300;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float DeathLifeSpan = 8;
+
 	
 	/**
 	 * Components
@@ -141,11 +141,11 @@ private:
 
 	/// Radius before losing focus on combat target
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	double CombatRadius = 500;
+	double CombatRadius = 1000;
 
 	/// Radius for attack radius, within combat radius
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	double AttackRadius = 140;
+	double AttackRadius = 150;
 
 	/// Radius before losing focus on patrol target
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")

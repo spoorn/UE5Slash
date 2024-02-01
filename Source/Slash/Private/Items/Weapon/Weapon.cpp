@@ -5,8 +5,10 @@
 
 #include "NiagaraComponent.h"
 #include "Asset/AssetMacros.h"
+#include "Character/CharacterTypes.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Enemy/EnemyTypes.h"
 #include "Interfaces/HitInterface.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -28,7 +30,7 @@ AWeapon::AWeapon()
 	// Default to no collision at the start
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	//CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	// Positions will be set in BP
 	BoxTraceStart = CreateDefaultSubobject<USceneComponent>("BoxTraceStart");
 	BoxTraceStart->SetupAttachment(ItemMesh);
@@ -77,23 +79,20 @@ void AWeapon::AttachMeshToComponent(USceneComponent* SceneComponent, FName InSoc
 	ItemMesh->AttachToComponent(SceneComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), InSocketName);
 }
 
-void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                                   int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool AWeapon::ActorSameTagAsOwner(AActor* OtherActor, FName Tag)
 {
-	Super::OnSphereBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-}
-
-void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex)
-{
-	Super::OnSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
+	return GetOwner()->ActorHasTag(Tag) && OtherActor->ActorHasTag(Tag);
 }
 
 void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// Enemies cannot hurt other enemies
+	// SlashCharacters cannot hurt other SlashCharacters
+	if (ActorSameTagAsOwner(OtherActor, EnemyTag) || ActorSameTagAsOwner(OtherActor, SlashCharacterTag)) return;
+	CollisionIgnoreActors.Add(GetOwner());
 	// Ignore the owner of this weapon, or if we already hit the other actor during a single attack
-	if (OtherActor != GetOwner() || CollisionIgnoreActors.Contains(OtherActor))
+	if (!CollisionIgnoreActors.Contains(OtherActor))
 	{
 		const FVector Start = BoxTraceStart->GetComponentLocation();
 		const FVector End = BoxTraceEnd->GetComponentLocation();
@@ -101,20 +100,25 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		FHitResult HitResult;
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
-			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::None, HitResult, true);
+			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 
-		if (AActor* HitActor = HitResult.GetActor())
+		if (AActor* HitActor = HitResult.GetActor();
+			HitActor
+			&& !ActorSameTagAsOwner(HitActor, EnemyTag)
+			&& !ActorSameTagAsOwner(HitActor, SlashCharacterTag)
+			&& HitActor != GetOwner()
+			&& !CollisionIgnoreActors.Contains(HitActor))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Owner: %s, Hit: %s"), *GetOwner()->GetName(), *HitActor->GetName());
+			
 			UGameplayStatics::ApplyDamage(HitActor, Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 			
 			if (IHitInterface* HitInterface = Cast<IHitInterface>(HitActor))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("GetHit %s"), *HitActor->GetName());
-				UE_LOG(LogTemp, Warning, TEXT("---"));
 				HitInterface->Execute_GetHit(HitActor, HitResult.ImpactPoint);
-				// Only create the field if hitting a hittable actor, so hitting terrain doesn't generate a physics field
-				CreateFields(HitResult.ImpactPoint);
 			}
+			// Hitting terrain generates a physics field too
+			CreateFields(HitResult.ImpactPoint);
 			CollisionIgnoreActors.AddUnique(HitActor);
 		}
 	}

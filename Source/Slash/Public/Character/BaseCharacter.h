@@ -23,8 +23,10 @@ public:
 	ABaseCharacter();
 
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+	virtual void BeginPlay() override;
 
 	/**
 	 * Weapon Hit Collision
@@ -32,13 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollision(ECollisionEnabled::Type CollisionType);
 
-protected:
-	virtual void BeginPlay() override;
-
-	virtual bool IsAlive();
-	
+	FORCEINLINE virtual bool IsAlive();
 	/// True if character can attack, else false
-	virtual bool CanAttack();
+	FORCEINLINE virtual bool CanAttack();
 	/// Begin attack
 	virtual void Attack();
 	/// Select a random section from animation montage and play it, returning the section index

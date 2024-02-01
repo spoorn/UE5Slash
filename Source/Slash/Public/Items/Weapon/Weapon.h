@@ -22,6 +22,7 @@ public:
 	
 	void Equip(USceneComponent* SceneComponent, FName InSocketName, TObjectPtr<AActor> OwnerActor, TObjectPtr<APawn> InstigatorActor);
 	void AttachMeshToComponent(USceneComponent* SceneComponent, FName InSocketName);
+	bool ActorSameTagAsOwner(AActor* OtherActor, FName Tag);
 
 	/// Play Equip sound effect
 	void PlayEquipSound();
@@ -33,14 +34,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	/**
-	 * Weapon pickup overlaps
-	 */
-	 
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-
+	
 	/// Collision box overlaps
 	UFUNCTION()
 	void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

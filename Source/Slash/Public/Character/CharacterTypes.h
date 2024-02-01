@@ -4,7 +4,8 @@
 
 #pragma once
 
-inline static FName SlashCharacterTagName = FName("SlashCharacter");
+inline static FName SlashCharacterTag = FName("SlashCharacter");
+inline static FName EngageableActorTagName = FName("EngageableActor");
 
 /// Character types driving animations
 UENUM(BlueprintType)

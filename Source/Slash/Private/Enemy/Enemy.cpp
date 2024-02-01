@@ -4,13 +4,10 @@
 #include "Enemy/Enemy.h"
 
 #include "AIController.h"
-#include "Asset/AssetMacros.h"
 #include "Components/AttributeComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
 #include "Items/Weapon/Weapon.h"
-#include "Particles/ParticleSystem.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
@@ -20,11 +17,6 @@ AEnemy::AEnemy()
 
 	// Enemy mesh should be WorldDynamic to have collision with player weapons
 	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
-	// Block visibility channel for hit traces
-	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	GetMesh()->SetGenerateOverlapEvents(true);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 	// Set default mesh
 	if (const ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMesh(TEXT("/Game/Mixamo/Paladin/SKM_Paladin"))
@@ -36,16 +28,12 @@ AEnemy::AEnemy()
 		GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	}
 
-	// Set default hit sound and hit particle effect
-	LOAD_ASSET_TO_VARIABLE(USoundBase, "/Game/Audio/MetaSounds/SFX_HitFlesh", HitSound);
-	LOAD_ASSET_TO_VARIABLE(UParticleSystem, "/Game/VFX/Blood/Effects/ParticleSystems/Gameplay/Player/P_body_bullet_impact", HitParticles);
-
 	HealthBar = CreateDefaultSubobject<UHealthBarComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
 	HealthBar->SetWidgetSpace(EWidgetSpace::Screen);
 
 	// Limit walk speed to be slower than character
-	GetCharacterMovement()->MaxWalkSpeed = 150;  // Default to walking speed only
+	GetCharacterMovement()->MaxWalkSpeed = 150; // Default to walking speed only
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
@@ -58,16 +46,53 @@ AEnemy::AEnemy()
 	PawnSensingComponent->bOnlySensePlayers = false;
 }
 
+
+void AEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (IsDead()) return;
+	if (EnemyState > EEnemyState::Patrolling)
+	{
+		// Escalated enough to check combat target
+		CheckCombatTarget();
+	}
+	else
+	{
+		CheckPatrolTarget();
+	}
+}
+
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	ShowHealthBar();
+	if (IsAlive())
+	{
+		DirectionalHitReact(ImpactPoint);
+	}
+	else
+	{
+		Die();
+	}
+
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(DamageAmount);
+	CombatTarget = EventInstigator->GetPawn();
+	ChaseTarget();
+	return DamageAmount;
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HealthBar)
-	{
-		HealthBar->SetHealthPercent(1);
-		HealthBar->SetVisibility(false);
-	}
+	Tags.Add(EnemyTag);
 
+	HideHealthBar();
 	AIController = Cast<AAIController>(GetController());
 	MoveToTarget(PatrolTarget);
 
@@ -76,6 +101,11 @@ void AEnemy::BeginPlay()
 		PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemy::OnPawnSeen);
 	}
 
+	SpawnDefaultWeapon();
+}
+
+void AEnemy::SpawnDefaultWeapon()
+{
 	if (UWorld* World = GetWorld(); World && WeaponClass)
 	{
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
@@ -86,19 +116,21 @@ void AEnemy::BeginPlay()
 
 bool AEnemy::CanAttack()
 {
-	return IsInAttackRadius() && !IsAttacking() && !IsDead();
+	return IsInAttackRadius() && !IsAttacking() && !IsEngaged() && !IsDead();
 }
 
 void AEnemy::Attack()
 {
 	Super::Attack();
+	EnemyState = EEnemyState::Engaged;
 	PlayAttackMontage();
 }
 
-void AEnemy::PlayAttackMontage()
+void AEnemy::AttackEnd()
 {
-	Super::PlayAttackMontage();
-	PlayRandomMontageSection(AttackMontage);
+	Super::AttackEnd();
+	EnemyState = EEnemyState::NoState;
+	CheckCombatTarget();
 }
 
 void AEnemy::HandleDamage(float DamageAmount)
@@ -141,7 +173,7 @@ void AEnemy::OnPawnSeen(APawn* Pawn)
 		EnemyState != EEnemyState::Dead
 		&& EnemyState != EEnemyState::Chasing
 		&& EnemyState < EEnemyState::Chasing
-		&& Pawn->ActorHasTag(SlashCharacterTagName);
+		&& Pawn->ActorHasTag(EngageableActorTagName);
 
 	if (bShouldChaseTarget)
 	{
@@ -176,14 +208,16 @@ void AEnemy::CheckCombatTarget()
 		{
 			StartPatrolling();
 		}
-	} else if (!IsInAttackRadius() && !IsChasing())
+	}
+	else if (!IsInAttackRadius() && !IsChasing())
 	{
 		ClearAttackTimer();
 		if (!IsEngaged())
 		{
 			ChaseTarget();
 		}
-	} else if (CanAttack())
+	}
+	else if (CanAttack())
 	{
 		// Inside attack range, attack target
 		StartAttackTimer();
@@ -205,7 +239,7 @@ void AEnemy::CheckPatrolTarget()
 				ValidTargets.Add(Target);
 			}
 		}
-		
+
 		const int32 NumTargets = ValidTargets.Num();
 		if (NumTargets > 0)
 		{
@@ -307,42 +341,3 @@ void AEnemy::PatrolTimerFinished()
 {
 	MoveToTarget(PatrolTarget);
 }
-
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (IsDead()) return;
-	if (EnemyState > EEnemyState::Patrolling)
-	{
-		// Escalated enough to check combat target
-		CheckCombatTarget();
-	} else
-	{
-		CheckPatrolTarget();
-	}
-}
-
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
-{
-	ShowHealthBar();
-	if (IsAlive())
-	{
-		DirectionalHitReact(ImpactPoint);
-	} else
-	{
-		Die();
-	}
-
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
-}
-
-float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	HandleDamage(DamageAmount);
-	CombatTarget = EventInstigator->GetPawn();
-	ChaseTarget();
-	return DamageAmount;
-}
-

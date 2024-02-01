@@ -9,14 +9,13 @@
 #include "InputMappingContext.h"
 #include "Asset/AssetMacros.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Items/Weapon/Weapon.h"
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Disable controller rotation on character to prevent sliding behavior, only used for camera
 	bUseControllerRotationPitch = false;
@@ -79,7 +78,8 @@ void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Tags.Add(SlashCharacterTagName);
+	Tags.Add(SlashCharacterTag);
+	Tags.Add(EngageableActorTagName);
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -172,28 +172,9 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 	}
 }
 
-void ASlashCharacter::PlayAttackMontage()
-{
-	Super::PlayAttackMontage();
-	if (TObjectPtr<UAnimInstance> AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && AttackMontage)
-	{
-		// Pick animation instance at random
-		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 1);
-		if (Selection == 0)
-		{
-			AnimInstance->Montage_JumpToSection(FName("Attack1"), AttackMontage);
-		} else
-		{
-			AnimInstance->Montage_JumpToSection(FName("Attack2"), AttackMontage);
-		}
-	}
-}
-
 void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::Unoccupied;
-	
 }
 
 void ASlashCharacter::Arm()
@@ -218,12 +199,6 @@ void ASlashCharacter::EndEquipping()
 	ActionState = EActionState::Unoccupied;
 }
 
-void ASlashCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -236,5 +211,13 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeypressed);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 	}
+}
+
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player hit"));
+	Super::GetHit_Implementation(ImpactPoint);
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
 }
 
