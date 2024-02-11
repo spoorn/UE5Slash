@@ -100,7 +100,7 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		FHitResult HitResult;
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
-			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
+			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::None, HitResult, true);
 
 		if (AActor* HitActor = HitResult.GetActor();
 			HitActor
