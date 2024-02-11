@@ -61,6 +61,9 @@ protected:
 	/// End equipping animation
 	UFUNCTION(BlueprintCallable)
 	void EndEquipping();
+	/// Hit Reaction montage end
+	UFUNCTION(BlueprintCallable)
+	void HitReactionEnd();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> MappingContext;

@@ -64,18 +64,9 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
+	Super::GetHit_Implementation(ImpactPoint);
 	ShowHealthBar();
-	if (IsAlive())
-	{
-		DirectionalHitReact(ImpactPoint);
-	}
-	else
-	{
-		Die();
-	}
-
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	ClearPatrolTimer();
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -156,6 +147,7 @@ void AEnemy::Die()
 	ClearAttackTimer();
 	HideHealthBar();
 	SetLifeSpan(DeathLifeSpan);
+	SetWeaponCollision(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Destroyed()
@@ -262,7 +254,7 @@ void AEnemy::HideHealthBar()
 
 void AEnemy::ShowHealthBar()
 {
-	if (HealthBar)
+	if (!IsDead() && HealthBar)
 	{
 		HealthBar->SetVisibility(true);
 	}

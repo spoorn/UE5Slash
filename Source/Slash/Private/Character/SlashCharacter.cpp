@@ -199,6 +199,11 @@ void ASlashCharacter::EndEquipping()
 	ActionState = EActionState::Unoccupied;
 }
 
+void ASlashCharacter::HitReactionEnd()
+{
+	ActionState = EActionState::Unoccupied;
+}
+
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -215,9 +220,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player hit"));
 	Super::GetHit_Implementation(ImpactPoint);
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	ActionState = EActionState::HitReaction;
 }
 

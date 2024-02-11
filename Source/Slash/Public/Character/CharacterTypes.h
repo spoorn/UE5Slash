@@ -20,6 +20,7 @@ UENUM(BlueprintType)
 enum class EActionState : uint8
 {
 	Unoccupied,
+	HitReaction,
 	Attacking,
 	EquippingWeapon
 };
