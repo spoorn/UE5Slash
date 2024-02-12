@@ -37,7 +37,7 @@ ABreakableActor::ABreakableActor()
 	CapsuleComponent->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
-void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
+void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	// Empty, but allows getting hit by player weapon
 }

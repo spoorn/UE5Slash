@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -55,6 +55,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::Patrolling;
+
+	/// Keep track of who this enemy is in focused combat with
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	TObjectPtr<AActor> CombatTarget;
 
 private:
 	void SpawnDefaultWeapon();
@@ -104,10 +108,10 @@ private:
 
 	/// Minimum time in seconds of attack timer
 	UPROPERTY(EditAnywhere, Category = Combat)
-	float AttackMin = 0.5;
+	float AttackMin = 0.4;
 	/// Max time in seconds of attack timer
 	UPROPERTY(EditAnywhere, Category = Combat)
-	float AttackMax = 1;
+	float AttackMax = 0.7;
 	
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
@@ -134,10 +138,6 @@ private:
 	/// Weapon the Enemy can equip
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	TSubclassOf<AWeapon> WeaponClass;
-
-	/// Keep track of who this enemy is in focused combat with
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AActor> CombatTarget;
 
 	/// Radius before losing focus on combat target
 	UPROPERTY(EditAnywhere, Category = "Combat")

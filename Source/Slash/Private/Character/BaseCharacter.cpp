@@ -72,6 +72,14 @@ void ABaseCharacter::PlayAttackMontage()
 	PlayRandomMontageSection(AttackMontage);
 }
 
+void ABaseCharacter::StopAttackMontage()
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->Montage_Stop(0.25, AttackMontage);
+	}
+}
+
 void ABaseCharacter::AttackEnd()
 {
 }
@@ -163,11 +171,12 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
-void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	if (IsAlive())
+	if (IsAlive() && Hitter)
 	{
-		DirectionalHitReact(ImpactPoint);
+		DirectionalHitReact(Hitter->GetActorLocation());
+		SetWeaponCollision(ECollisionEnabled::NoCollision);
 	}
 	else
 	{

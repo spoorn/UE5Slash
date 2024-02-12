@@ -28,5 +28,5 @@ public:
 	 * Native event so it's implementable in BP using events.
 	 */
 	UFUNCTION(BlueprintNativeEvent)
-	void GetHit(const FVector& ImpactPoint);
+	void GetHit(const FVector& ImpactPoint, AActor* Hitter);
 };

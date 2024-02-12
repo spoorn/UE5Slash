@@ -62,18 +62,29 @@ void AEnemy::Tick(float DeltaTime)
 	}
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	Super::GetHit_Implementation(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
 	ShowHealthBar();
 	ClearPatrolTimer();
+	ClearAttackTimer();
+	if (IsEngaged())
+	{
+		StopAttackMontage();
+	}
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
 	CombatTarget = EventInstigator->GetPawn();
-	ChaseTarget();
+	if (IsInAttackRadius())
+	{
+		EnemyState = EEnemyState::Attacking;
+	} else
+	{
+		ChaseTarget();
+	}
 	return DamageAmount;
 }
 

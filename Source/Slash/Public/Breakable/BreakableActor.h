@@ -15,7 +15,7 @@ class SLASH_API ABreakableActor : public AActor, public IHitInterface
 public:	
 	ABreakableActor();
 
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
 	/// Called when the geometry collection breaks due to chaos physics
 	UFUNCTION()

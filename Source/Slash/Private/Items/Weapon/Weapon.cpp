@@ -115,7 +115,7 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			
 			if (IHitInterface* HitInterface = Cast<IHitInterface>(HitActor))
 			{
-				HitInterface->Execute_GetHit(HitActor, HitResult.ImpactPoint);
+				HitInterface->Execute_GetHit(HitActor, HitResult.ImpactPoint, GetOwner());
 			}
 			// Hitting terrain generates a physics field too
 			CreateFields(HitResult.ImpactPoint);

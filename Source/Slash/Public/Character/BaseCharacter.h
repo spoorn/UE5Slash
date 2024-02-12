@@ -25,7 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,6 +46,8 @@ protected:
 	int32 PlayRandomMontageSection(TObjectPtr<UAnimMontage> Montage);
 	/// Play Attack Montage animation
 	virtual void PlayAttackMontage();
+	/// Stop Attack Montage animation
+	virtual void StopAttackMontage();
 	/// End of attack notification
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
