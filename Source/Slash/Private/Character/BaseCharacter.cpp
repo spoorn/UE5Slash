@@ -123,13 +123,13 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 		SectionName = FName("FromFront");
 	} else if (Angle >= -135 && Angle < -45)
 	{
-		SectionName = FName("FromBack");
+		SectionName = FName("FromLeft");
 	} else if (Angle >= 45 && Angle < 135)
 	{
 		SectionName = FName("FromRight");
 	} else
 	{
-		SectionName = FName("FromLeft");
+		SectionName = FName("FromBack");
 	}
 
 	PlayHitReactMontage(SectionName);
