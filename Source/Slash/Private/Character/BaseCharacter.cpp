@@ -4,6 +4,7 @@
 #include "Character/BaseCharacter.h"
 
 #include "Asset/AssetMacros.h"
+#include "Character/CharacterTypes.h"
 #include "Components/AttributeComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -80,6 +81,15 @@ void ABaseCharacter::StopAttackMontage()
 	}
 }
 
+void ABaseCharacter::PlayDeathMontage()
+{
+	const int32 Selection = PlayRandomMontageSection(DeathMontage);
+	if (Selection < static_cast<int32>(EDeathPose::MAX))
+	{
+		DeathPose = static_cast<EDeathPose>(Selection);
+	}
+}
+
 void ABaseCharacter::AttackEnd()
 {
 }
@@ -94,6 +104,8 @@ void ABaseCharacter::HandleDamage(float DamageAmount)
 
 void ABaseCharacter::Die()
 {
+	PlayDeathMontage();
+	SetWeaponCollision(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->Deactivate();

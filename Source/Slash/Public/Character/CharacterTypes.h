@@ -22,7 +22,8 @@ enum class EActionState : uint8
 	Unoccupied,
 	HitReaction,
 	Attacking,
-	EquippingWeapon
+	EquippingWeapon,
+	Dead
 };
 
 /// Death pose state

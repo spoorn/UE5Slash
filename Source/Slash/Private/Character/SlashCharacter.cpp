@@ -218,6 +218,12 @@ void ASlashCharacter::HitReactionEnd()
 	ActionState = EActionState::Unoccupied;
 }
 
+void ASlashCharacter::Die()
+{
+	Super::Die();
+	ActionState = EActionState::Dead;
+}
+
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -250,6 +256,9 @@ float ASlashCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
-	ActionState = EActionState::HitReaction;
+	if (IsAlive())
+	{
+		ActionState = EActionState::HitReaction;
+	}
 }
 

@@ -4,6 +4,7 @@
 #include "Enemy/Enemy.h"
 
 #include "AIController.h"
+#include "Character/CharacterTypes.h"
 #include "Components/AttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
@@ -149,16 +150,9 @@ void AEnemy::Die()
 {
 	Super::Die();
 	EnemyState = EEnemyState::Dead;
-	// Play death montage
-	const int32 Selection = PlayRandomMontageSection(DeathMontage);
-	if (Selection < static_cast<int32>(EDeathPose::MAX))
-	{
-		DeathPose = static_cast<EDeathPose>(Selection);
-	}
 	ClearAttackTimer();
 	HideHealthBar();
 	SetLifeSpan(DeathLifeSpan);
-	SetWeaponCollision(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Destroyed()

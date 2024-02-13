@@ -5,12 +5,10 @@
 #include "CoreMinimal.h"
 #include "EnemyTypes.h"
 #include "Character/BaseCharacter.h"
-#include "Character/CharacterTypes.h"
 #include "Enemy.generated.h"
 
 enum class EEnemyState : uint8;
 class AAIController;
-enum class EDeathPose : uint8;
 class UWidgetComponent;
 
 UCLASS()
@@ -49,9 +47,6 @@ protected:
 
 	/// Move Enemy to a target actor
 	FORCEINLINE void MoveToTarget(TObjectPtr<AActor> Target);
-
-	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::Patrolling;
@@ -141,7 +136,7 @@ private:
 
 	/// Radius for attack radius, within combat radius
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	double AttackRadius = 150;
+	double AttackRadius = 200;
 
 	/// Radius before losing focus on patrol target
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")

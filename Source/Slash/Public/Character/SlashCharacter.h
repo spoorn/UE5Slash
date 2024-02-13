@@ -33,6 +33,8 @@ public:
 	FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() { return OverlappingItem; }
 	FORCEINLINE void SetOverlappingItem(TObjectPtr<AItem> Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
+	FORCEINLINE EDeathPose GetDeathPose() const { return DeathPose; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -66,6 +68,9 @@ protected:
 	/// Hit Reaction montage end
 	UFUNCTION(BlueprintCallable)
 	void HitReactionEnd();
+
+	/// Handle when this character dies
+	virtual void Die() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> MappingContext;

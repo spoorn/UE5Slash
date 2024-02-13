@@ -20,23 +20,31 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	// Pointer to attached Character
+	/// Pointer to attached Character
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<class ASlashCharacter> SlashCharacter;
 
-	// Character movement component which should be on our slash character
+	/// Character movement component which should be on our slash character
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	TObjectPtr<class UCharacterMovementComponent> SlashCharacterMovementComponent;
 
-	// Ground speed to drive animation state
+	/// Ground speed to drive animation state
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float GroundSpeed;
 
-	// Is in the air
+	/// Is in the air
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
 
-	// Character state
-	UPROPERTY(BlueprintReadOnly, Category = "Character State")
+	/// Character state
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	ECharacterState CharacterState;
+
+	/// Character Action State
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	EActionState ActionState;
+
+	/// Death Pose
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	EDeathPose DeathPose;
 };

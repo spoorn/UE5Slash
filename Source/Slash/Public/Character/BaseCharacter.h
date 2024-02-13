@@ -7,6 +7,7 @@
 #include "Interfaces/HitInterface.h"
 #include "BaseCharacter.generated.h"
 
+enum class EDeathPose : uint8;
 class UAttributeComponent;
 class AWeapon;
 
@@ -48,6 +49,8 @@ protected:
 	virtual void PlayAttackMontage();
 	/// Stop Attack Montage animation
 	virtual void StopAttackMontage();
+	/// Death Montage animation
+	virtual void PlayDeathMontage();
 	/// End of attack notification
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
@@ -66,6 +69,9 @@ protected:
 	void PlayHitSound(const FVector& ImpactPoint);
 	/// Spawn particles for receiving a hit
 	void SpawnHitParticles(const FVector& ImpactPoint);
+
+	UPROPERTY(BlueprintReadOnly)
+	EDeathPose DeathPose;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAttributeComponent> Attributes;
