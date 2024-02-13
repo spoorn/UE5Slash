@@ -14,6 +14,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
+#include "Items/Soul.h"
+#include "Items/Treasure/Treasure.h"
 #include "Items/Weapon/Weapon.h"
 
 ASlashCharacter::ASlashCharacter()
@@ -259,6 +261,40 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* 
 	if (IsAlive())
 	{
 		ActionState = EActionState::HitReaction;
+	}
+}
+
+void ASlashCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+AItem* ASlashCharacter::GetOverlappingItem()
+{
+	return OverlappingItem;
+}
+
+void ASlashCharacter::AddSouls(ASoul* Soul)
+{
+	if (Attributes)
+	{
+		Attributes->AddSouls(Soul->GetSouls());
+		if (SlashOverlay)
+		{
+			SlashOverlay->SetSouls(Attributes->GetSouls());
+		}
+	}
+}
+
+void ASlashCharacter::AddGold(ATreasure* Treasure)
+{
+	if (Attributes)
+	{
+		Attributes->AddGold(Treasure->GetGold());
+		if (SlashOverlay)
+		{
+			SlashOverlay->SetGold(Attributes->GetGold());
+		}
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "Character/BaseCharacter.h"
 #include "Enemy.generated.h"
 
+class ASoul;
 enum class EEnemyState : uint8;
 class AAIController;
 class UWidgetComponent;
@@ -32,6 +33,7 @@ protected:
 	virtual void AttackEnd() override;
 
 	virtual void HandleDamage(float DamageAmount) override;
+	void SpawnSoul();
 
 	/// Handle when this enemy dies
 	virtual void Die() override;
@@ -141,6 +143,10 @@ private:
 	/// Radius before losing focus on patrol target
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	double PatrolRadius = 200;
+
+	/// Soul class to spawn on death
+	UPROPERTY(EditAnywhere, Category = "Loot")
+	TSubclassOf<ASoul> SoulClass;
 
 	// Timer handle for wait time at patrol points
 	// FTimer is a timer that holds a callback function that executes when timer is finished

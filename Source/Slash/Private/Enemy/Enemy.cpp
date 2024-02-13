@@ -8,7 +8,9 @@
 #include "Components/AttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/HealthBarComponent.h"
+#include "Items/Soul.h"
 #include "Items/Weapon/Weapon.h"
+#include "Kismet/GameplayStatics.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
@@ -45,6 +47,9 @@ AEnemy::AEnemy()
 	PawnSensingComponent->SightRadius = 4000;
 	PawnSensingComponent->SetPeripheralVisionAngle(45);
 	PawnSensingComponent->bOnlySensePlayers = false;
+
+	// Default soul
+	SoulClass = ASoul::StaticClass();
 }
 
 
@@ -104,6 +109,12 @@ void AEnemy::BeginPlay()
 		PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemy::OnPawnSeen);
 	}
 
+	if (Attributes)
+	{
+		// Random soul amount
+		Attributes->AddSouls(FMath::RandRange(1, 10));
+	}
+
 	SpawnDefaultWeapon();
 }
 
@@ -147,6 +158,19 @@ void AEnemy::HandleDamage(float DamageAmount)
 	}
 }
 
+void AEnemy::SpawnSoul()
+{
+	if (UWorld* World = GetWorld(); World && SoulClass)
+	{
+		if (ASoul* Soul = Cast<ASoul>(UGameplayStatics::BeginDeferredActorSpawnFromClass(World, SoulClass, GetActorTransform())))
+		{
+			// Drop all souls
+			Soul->SetSouls(Attributes->GetSouls());
+			UGameplayStatics::FinishSpawningActor(Soul, GetActorTransform());
+		}
+	}
+}
+
 void AEnemy::Die()
 {
 	Super::Die();
@@ -154,6 +178,7 @@ void AEnemy::Die()
 	ClearAttackTimer();
 	HideHealthBar();
 	SetLifeSpan(DeathLifeSpan);
+	SpawnSoul();
 }
 
 void AEnemy::Destroyed()

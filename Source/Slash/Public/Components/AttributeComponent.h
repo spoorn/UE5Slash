@@ -25,6 +25,12 @@ public:
 	/// Whether entity is alive based on health and max health
 	bool IsAlive();
 
+	void AddGold(int32 Amount);
+	void AddSouls(int32 Amount);
+
+	FORCEINLINE int32 GetGold() const { return Gold; }
+	FORCEINLINE int32 GetSouls() const { return Souls; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -36,5 +42,13 @@ private:
 	/// Default max health
 	UPROPERTY(EditAnywhere, Category = Attributes)
 	float MaxHealth = 100;
+
+	/// Gold count
+	UPROPERTY(VisibleAnywhere, Category = Attributes)
+	int32 Gold = 0;
+
+	/// Souls count
+	UPROPERTY(VisibleAnywhere, Category = Attributes)
+	int32 Souls = 0;
 		
 };

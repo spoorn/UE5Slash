@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "SlashCharacter.generated.h"
 
 class USlashOverlay;
@@ -18,7 +19,7 @@ class UInputMappingContext;
 struct FInputActionValue;
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ABaseCharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -29,9 +30,11 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	FORCEINLINE virtual void SetOverlappingItem(AItem* Item) override;
+	FORCEINLINE virtual AItem* GetOverlappingItem() override;
+	virtual void AddSouls(ASoul* Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 
-	FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() { return OverlappingItem; }
-	FORCEINLINE void SetOverlappingItem(TObjectPtr<AItem> Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 	FORCEINLINE EDeathPose GetDeathPose() const { return DeathPose; }

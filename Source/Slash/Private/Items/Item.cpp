@@ -3,10 +3,12 @@
 
 #include "Items/Item.h"
 
-#include "Character/SlashCharacter.h"
 #include "Components/SphereComponent.h"
 #include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Asset/AssetMacros.h"
+#include "Interfaces/PickupInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 AItem::AItem()
 {
@@ -48,9 +50,9 @@ float AItem::TransformedCos()
 void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (TObjectPtr<ASlashCharacter> SlashCharacter = Cast<ASlashCharacter>(OtherActor))
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		SlashCharacter->SetOverlappingItem(this);
+		PickupInterface->SetOverlappingItem(this);
 	}
 }
 
@@ -58,9 +60,25 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	int32 OtherBodyIndex)
 {
 	// Only remove overlapping item from character if it is the current one
-	if (TObjectPtr<ASlashCharacter> SlashCharacter = Cast<ASlashCharacter>(OtherActor); SlashCharacter && SlashCharacter->GetOverlappingItem() == this)
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor); PickupInterface && PickupInterface->GetOverlappingItem() == this)
 	{
-		SlashCharacter->SetOverlappingItem(nullptr);
+		PickupInterface->SetOverlappingItem(nullptr);
+	}
+}
+
+void AItem::SpawnPickupSystem()
+{
+	if (PickupEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PickupEffect, GetActorLocation());
+	}
+}
+
+void AItem::PlayPickupSound()
+{
+	if (PickupSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, PickupSound, GetActorLocation());
 	}
 }
 
