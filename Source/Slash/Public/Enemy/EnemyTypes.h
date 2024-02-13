@@ -9,6 +9,9 @@ inline static FName EnemyTag = FName("Enemy");
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
+	/// Not in any "active" state, for resetting
+	/// Have this be the first so ABP animation defaults to this instead of Dead
+	NoState,
 	Dead,
 	Patrolling,
 	Chasing,
@@ -16,6 +19,4 @@ enum class EEnemyState : uint8
 	Attacking,
 	/// Actually engaged in combat i.e. swinging weapon
 	Engaged,
-	/// Not in any "active" state, for resetting
-	NoState
 };

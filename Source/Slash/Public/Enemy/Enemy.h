@@ -56,10 +56,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::Patrolling;
 
-	/// Keep track of who this enemy is in focused combat with
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-	TObjectPtr<AActor> CombatTarget;
-
 private:
 	void SpawnDefaultWeapon();
 	

@@ -74,6 +74,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 	TObjectPtr<AWeapon> EquippedWeapon;
 
+	/// Keep track of who this enemy is in focused combat with
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	TObjectPtr<AActor> CombatTarget;
+
 	/**
 	 * Animation montages
 	 */
@@ -87,6 +91,19 @@ protected:
 	/// Animation montage on death
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> DeathMontage;
+
+	/**
+	 * For Motion Warping
+	 */
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	double WarpTargetDistance = 75;
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTranslationWarpTarget();
+
+	UFUNCTION(BlueprintCallable)
+	FRotator GetRotationWarpTarget();
 	
 	/**
 	 * Sounds

@@ -159,6 +159,31 @@ void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
 	}
 }
 
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	if (!CombatTarget) return FVector();
+
+	const FVector CombatTargetLocation = CombatTarget->GetActorLocation();
+	const FVector MyLocation = GetActorLocation();
+	const FVector TargetToMe = MyLocation - CombatTargetLocation;
+	if (TargetToMe.Length() < WarpTargetDistance)
+	{
+		return MyLocation;
+	} else
+	{
+		return CombatTargetLocation + (TargetToMe.GetSafeNormal() * WarpTargetDistance);
+	}
+}
+
+FRotator ABaseCharacter::GetRotationWarpTarget()
+{
+	if (CombatTarget)
+	{
+		return (CombatTarget->GetActorLocation() - GetActorLocation()).Rotation();
+	}
+	return FRotator();
+}
+
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
