@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "SlashHUD.generated.h"
 
+class USlashOverlay;
 /**
  * 
  */
@@ -17,7 +18,12 @@ class SLASH_API ASlashHUD : public AHUD
 public:
 	virtual void BeginPlay() override;
 
+	FORCEINLINE USlashOverlay* GetSlashOverlay() const { return SlashOverlay; };
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Slash)
-	TSubclassOf<class USlashOverlay> SlashOverlayClass;
+	TSubclassOf<USlashOverlay> SlashOverlayClass;
+
+	UPROPERTY()
+	TObjectPtr<USlashOverlay> SlashOverlay;
 };

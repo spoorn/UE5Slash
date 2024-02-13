@@ -9,8 +9,11 @@
 #include "InputMappingContext.h"
 #include "Asset/AssetMacros.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "HUD/SlashHUD.h"
+#include "HUD/SlashOverlay.h"
 #include "Items/Weapon/Weapon.h"
 
 ASlashCharacter::ASlashCharacter()
@@ -86,6 +89,17 @@ void ASlashCharacter::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(MappingContext, 0);
+		}
+
+		if (ASlashHUD* SlashHUD = Cast<ASlashHUD>(PlayerController->GetHUD()))
+		{
+			if (SlashOverlay = SlashHUD->GetSlashOverlay(); SlashOverlay)
+			{
+				SetHUDHealth();
+				SlashOverlay->SetStaminaPercent(1);
+				SlashOverlay->SetGold(0);
+				SlashOverlay->SetSouls(0);
+			}
 		}
 	}
 }
@@ -218,9 +232,18 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	}
 }
 
+void ASlashCharacter::SetHUDHealth()
+{
+	if (SlashOverlay && Attributes)
+	{
+		SlashOverlay->SetHealthPercent(Attributes->GetHealthPercent());
+	}
+}
+
 float ASlashCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
+	SetHUDHealth();
 	return DamageAmount;
 }
 

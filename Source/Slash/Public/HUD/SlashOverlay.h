@@ -9,7 +9,7 @@
 class UTextBlock;
 class UProgressBar;
 /**
- * 
+ * Slash Character overlay
  */
 UCLASS()
 class SLASH_API USlashOverlay : public UUserWidget
@@ -17,6 +17,12 @@ class SLASH_API USlashOverlay : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	void SetHealthPercent(float Percent);
+	void SetStaminaPercent(float Percent);
+	void SetGold(int32 Gold);
+	void SetSouls(int32 Souls);
+
+private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> HealthBar;
 

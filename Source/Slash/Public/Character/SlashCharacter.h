@@ -7,6 +7,7 @@
 #include "CharacterTypes.h"
 #include "SlashCharacter.generated.h"
 
+class USlashOverlay;
 class AWeapon;
 class AItem;
 class UCameraComponent;
@@ -81,6 +82,8 @@ protected:
 
 private:
 
+	void SetHUDHealth();
+	
 	/**
 	 * States
 	 */
@@ -115,5 +118,12 @@ private:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> EquipMontage;
+
+	/**
+	 * Overlays
+	 */
+
+	UPROPERTY()
+	TObjectPtr<USlashOverlay> SlashOverlay;
 
 };
