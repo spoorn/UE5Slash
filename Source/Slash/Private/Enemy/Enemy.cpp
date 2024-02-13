@@ -125,6 +125,7 @@ bool AEnemy::CanAttack()
 void AEnemy::Attack()
 {
 	Super::Attack();
+	if (!CombatTarget) return;
 	EnemyState = EEnemyState::Engaged;
 	PlayAttackMontage();
 }

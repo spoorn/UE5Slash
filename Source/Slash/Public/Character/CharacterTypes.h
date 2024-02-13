@@ -6,6 +6,7 @@
 
 inline static FName SlashCharacterTag = FName("SlashCharacter");
 inline static FName EngageableActorTagName = FName("EngageableActor");
+inline static FName DeadTag = FName("Dead");
 
 /// Character types driving animations
 UENUM(BlueprintType)

@@ -52,6 +52,10 @@ bool ABaseCharacter::CanAttack()
 
 void ABaseCharacter::Attack()
 {
+	if (CombatTarget && CombatTarget->ActorHasTag(DeadTag))
+	{
+		CombatTarget = nullptr;
+	}
 }
 
 int32 ABaseCharacter::PlayRandomMontageSection(TObjectPtr<UAnimMontage> Montage)
@@ -104,6 +108,7 @@ void ABaseCharacter::HandleDamage(float DamageAmount)
 
 void ABaseCharacter::Die()
 {
+	Tags.Add(DeadTag);
 	PlayDeathMontage();
 	SetWeaponCollision(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
