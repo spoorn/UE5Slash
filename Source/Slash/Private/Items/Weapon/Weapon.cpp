@@ -109,8 +109,6 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			&& HitActor != GetOwner()
 			&& !CollisionIgnoreActors.Contains(HitActor))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Owner: %s, Hit: %s"), *GetOwner()->GetName(), *HitActor->GetName());
-			
 			UGameplayStatics::ApplyDamage(HitActor, Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 			
 			if (IHitInterface* HitInterface = Cast<IHitInterface>(HitActor))

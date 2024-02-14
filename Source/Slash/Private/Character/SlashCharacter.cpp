@@ -20,7 +20,7 @@
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Disable controller rotation on character to prevent sliding behavior, only used for camera
 	bUseControllerRotationPitch = false;
@@ -73,10 +73,27 @@ ASlashCharacter::ASlashCharacter()
 	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Jump", JumpAction);
 	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Equip", EquipAction);
 	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Attack", AttackAction);
+	LOAD_ASSET_TO_VARIABLE(UInputAction, "/Game/Input/Actions/IA_Dodge", DodgeAction);
 
 	// Animation montages
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Attack", AttackMontage);
 	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Equip", EquipMontage);
+	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_HitReact", HitReactMontage);
+	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Death", DeathMontage);
+	LOAD_ASSET_TO_VARIABLE(UAnimMontage, "/Game/Blueprints/Character/Animations/AM_Dodge", DodgeMontage);
+}
+
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (Attributes)
+	{
+		Attributes -> RegenStamina(DeltaTime);
+		if (SlashOverlay)
+		{
+			SlashOverlay->SetStaminaPercent(Attributes->GetStaminaPercent());
+		}
+	}
 }
 
 void ASlashCharacter::BeginPlay()
@@ -138,6 +155,22 @@ void ASlashCharacter::Turn(const FInputActionValue& Value)
 	}
 }
 
+bool ASlashCharacter::CanDodge()
+{
+	return Attributes && Attributes->CanDodge();
+}
+
+void ASlashCharacter::Dodge()
+{
+	if (ActionState != EActionState::Unoccupied || !CanDodge()) return;
+	PlayDodgeMontage();
+	if (Attributes)
+	{
+		Attributes->UseStamina(Attributes->GetDodgeCost());
+	}
+	ActionState = EActionState::Dodge;
+}
+
 void ASlashCharacter::EKeypressed()
 {
 	// Attach weapon to SlashCharacter's right hand socket
@@ -193,6 +226,12 @@ void ASlashCharacter::AttackEnd()
 	ActionState = EActionState::Unoccupied;
 }
 
+void ASlashCharacter::DodgeEnd()
+{
+	Super::DodgeEnd();
+	ActionState = EActionState::Unoccupied;
+}
+
 void ASlashCharacter::Arm()
 {
 	if (EquippedWeapon)
@@ -237,6 +276,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeypressed);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
 	}
 }
 

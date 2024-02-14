@@ -51,9 +51,14 @@ protected:
 	virtual void StopAttackMontage();
 	/// Death Montage animation
 	virtual void PlayDeathMontage();
+	/// Dodge montage animation
+	void PlayDodgeMontage();
 	/// End of attack notification
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
+	/// End of dodge notification
+	UFUNCTION(BlueprintCallable)
+	virtual void DodgeEnd();
 
 	/// Handle taking damage
 	virtual void HandleDamage(float DamageAmount);
@@ -97,6 +102,9 @@ protected:
 	/// Animation montage on death
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	TObjectPtr<UAnimMontage> DeathMontage;
+	/// Dodge animation montage
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	TObjectPtr<UAnimMontage> DodgeMontage;
 
 	/**
 	 * For Motion Warping

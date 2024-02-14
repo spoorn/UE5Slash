@@ -24,6 +24,7 @@ enum class EActionState : uint8
 	HitReaction,
 	Attacking,
 	EquippingWeapon,
+	Dodge,
 	Dead
 };
 

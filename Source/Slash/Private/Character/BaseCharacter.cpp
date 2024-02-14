@@ -94,7 +94,16 @@ void ABaseCharacter::PlayDeathMontage()
 	}
 }
 
+void ABaseCharacter::PlayDodgeMontage()
+{
+	PlayRandomMontageSection(DodgeMontage);
+}
+
 void ABaseCharacter::AttackEnd()
+{
+}
+
+void ABaseCharacter::DodgeEnd()
 {
 }
 

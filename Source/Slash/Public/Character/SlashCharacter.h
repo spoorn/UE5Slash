@@ -26,6 +26,7 @@ class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
 public:
 	ASlashCharacter();
 
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -48,6 +49,8 @@ protected:
 	
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
+	bool CanDodge();
+	void Dodge();
 	void EKeypressed();
 	FORCEINLINE virtual bool CanAttack() override;
 	virtual void Attack() override;
@@ -58,6 +61,7 @@ protected:
 	
 	void PlayEquipMontage(const FName& SectionName);
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	
 	/// Equip weapon from back slot
 	UFUNCTION(BlueprintCallable)
@@ -87,6 +91,8 @@ protected:
 	TObjectPtr<UInputAction> EquipAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> DodgeAction;
 
 private:
 

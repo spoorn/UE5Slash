@@ -26,5 +26,5 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Soul Properties")
-	int32 Souls;
+	int32 Souls = 0;
 };
