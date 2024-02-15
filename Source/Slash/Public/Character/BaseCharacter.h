@@ -82,7 +82,7 @@ protected:
 	TObjectPtr<UAttributeComponent> Attributes;
 
 	/// Current equipped weapon
-	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, Category = Combat)
 	TObjectPtr<AWeapon> EquippedWeapon;
 
 	/// Keep track of who this enemy is in focused combat with

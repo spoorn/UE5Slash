@@ -129,7 +129,7 @@ private:
 	TObjectPtr<class UPawnSensingComponent> PawnSensingComponent;
 
 	/// Weapon the Enemy can equip
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<AWeapon> WeaponClass;
 
 	/// Radius before losing focus on combat target
@@ -143,6 +143,10 @@ private:
 	/// Radius before losing focus on patrol target
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	double PatrolRadius = 200;
+
+	/// Radius before losing focus on patrol target
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	double AcceptanceRadius = 50;
 
 	/// Soul class to spawn on death
 	UPROPERTY(EditAnywhere, Category = "Loot")

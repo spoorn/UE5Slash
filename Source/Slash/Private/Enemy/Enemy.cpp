@@ -78,6 +78,10 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 	{
 		StopAttackMontage();
 	}
+	if (IsInAttackRadius() && !IsDead())
+	{
+		StartAttackTimer();
+	}
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -216,7 +220,7 @@ void AEnemy::MoveToTarget(TObjectPtr<AActor> Target)
 	if (!AIController || !Target) return;
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(50);
+	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 	AIController->MoveTo(MoveRequest);
 }
 
