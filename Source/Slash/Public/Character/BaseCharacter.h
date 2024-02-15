@@ -18,7 +18,7 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 
 public:
 	// Should be created in Blueprints
-	static inline FName RightHandSocketName = FName("RightHandSocket");
+	static inline FName PrimaryWeaponSocketName = FName("PrimaryWeaponSocket");
 	static inline FName BackSocketName = FName("BackSocket");
 	
 	ABaseCharacter();

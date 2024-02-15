@@ -176,7 +176,7 @@ void ASlashCharacter::EKeypressed()
 	// Attach weapon to SlashCharacter's right hand socket
 	if (TObjectPtr<AWeapon> Weapon = Cast<AWeapon>(OverlappingItem))
 	{
-		Weapon->Equip(GetMesh(), RightHandSocketName, this, this);
+		Weapon->Equip(GetMesh(), PrimaryWeaponSocketName, this, this);
 		CharacterState = ECharacterState::EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
 		EquippedWeapon = Weapon;
@@ -236,7 +236,7 @@ void ASlashCharacter::Arm()
 {
 	if (EquippedWeapon)
 	{
-		EquippedWeapon->AttachMeshToComponent(GetMesh(), RightHandSocketName);
+		EquippedWeapon->AttachMeshToComponent(GetMesh(), PrimaryWeaponSocketName);
 		EquippedWeapon->PlayEquipSound();
 	}
 }

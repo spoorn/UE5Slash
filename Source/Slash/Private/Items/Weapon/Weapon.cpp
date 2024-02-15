@@ -96,11 +96,11 @@ void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	{
 		const FVector Start = BoxTraceStart->GetComponentLocation();
 		const FVector End = BoxTraceEnd->GetComponentLocation();
-		const FVector BoxHalfSize = FVector(5 * CollisionBox->GetComponentScale().X, 5 * CollisionBox->GetComponentScale().Y, 5);
+		const FVector BoxHalfSize = FVector(CollisionBox->GetScaledBoxExtent().X, CollisionBox->GetScaledBoxExtent().Y, 5);
 		FHitResult HitResult;
 		// Note: trace type query is for custom traces, which we aren't using here so just pick any
 		UKismetSystemLibrary::BoxTraceSingle(this, Start, End, BoxHalfSize, BoxTraceStart->GetComponentRotation(),
-			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::None, HitResult, true);
+			ETraceTypeQuery::TraceTypeQuery1, false, CollisionIgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true);
 
 		if (AActor* HitActor = HitResult.GetActor();
 			HitActor
